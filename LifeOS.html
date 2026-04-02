@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="LifeOS"/>
+<meta name="theme-color" content="#060608"/>
+<title>LifeOS</title>
+<style>
+:root{
+  --bg:#060608;--s1:#0C0C10;--s2:#131318;--s3:#1C1C22;--s4:#242430;
+  --br:rgba(255,255,255,.08);--brg:rgba(201,168,76,.18);--brghi:rgba(201,168,76,.4);
+  --g:#C9A84C;--gl:#E8C97A;--gd:#8A6A28;--gdd:#2A2008;
+  --t:#F2EFE9;--tm:#72706C;--td:#38362F;
+  --green:#30D158;--blue:#0A84FF;--purple:#BF5AF2;--red:#FF453A;--orange:#FF9F0A;--teal:#5AC8FA;
+  --r:14px;--rs:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg);height:100%;overflow:hidden;color:var(--t);font-family:-apple-system,'SF Pro Text','Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;}
+#app{height:100dvh;display:flex;flex-direction:column;max-width:430px;margin:0 auto;overflow:hidden;}
+::-webkit-scrollbar{display:none;}
+input,textarea,select{font-family:inherit;color:var(--t);background:var(--s2);border:1px solid var(--br);border-radius:var(--rs);padding:11px 13px;font-size:14px;width:100%;outline:none;-webkit-appearance:none;color-scheme:dark;transition:border-color .15s;}
+input:focus,textarea:focus{border-color:var(--brghi);}
+textarea{resize:none;line-height:1.55;}
+button{font-family:inherit;cursor:pointer;border:none;outline:none;}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes in{from{opacity:0}to{opacity:1}}
+@keyframes sh{0%{background-position:200%}100%{background-position:-200%}}
+@keyframes sp{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes sb{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.au{animation:up .35s cubic-bezier(.22,1,.36,1) both;}
+.ai2{animation:in .2s ease both;}
+.asb{animation:sb .32s cubic-bezier(.22,1,.36,1) both;}
+.spin{animation:sp 1.2s linear infinite;display:inline-block;}
+.shimmer{background:linear-gradient(90deg,var(--gd),var(--gl),var(--g),var(--gd));background-size:300% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:sh 3.5s linear infinite;}
+.tap{cursor:pointer;transition:transform .12s cubic-bezier(.22,1,.36,1),opacity .1s;user-select:none;}
+.tap:active{transform:scale(.95);opacity:.72;}
+/* Cards */
+.card{background:var(--s1);border:1px solid var(--br);border-radius:var(--r);padding:15px 16px;}
+.card-hi{background:var(--s1);border:1px solid var(--brg);border-radius:var(--r);padding:15px 16px;position:relative;overflow:hidden;}
+.card-hi::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gd)80,transparent);}
+/* Buttons */
+.btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:14px;border-radius:var(--r);font-size:15px;font-weight:600;width:100%;cursor:pointer;transition:transform .12s,opacity .1s;letter-spacing:.1px;}
+.btn:active{transform:scale(.97);opacity:.85;}
+.btn-gold{background:linear-gradient(135deg,var(--gd),var(--g),var(--gl));color:#040404;}
+.btn-sec{background:var(--s2);border:1px solid var(--br);color:var(--t);}
+.btn-danger{background:rgba(255,69,58,.1);border:1px solid rgba(255,69,58,.2);color:var(--red);}
+.btn-sm{padding:9px 16px;font-size:13px;font-weight:600;border-radius:var(--rs);width:auto;}
+.btn-xs{padding:6px 11px;font-size:12px;font-weight:600;border-radius:8px;width:auto;}
+.btn-icon{width:44px;height:44px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;flex-shrink:0;transition:transform .12s,opacity .1s;}
+.btn-icon:active{transform:scale(.93);}
+/* Segment */
+.seg{display:flex;background:var(--s2);border-radius:var(--rs);padding:3px;gap:2px;}
+.seg-b{flex:1;padding:7px 4px;border-radius:8px;background:transparent;border:none;color:var(--tm);font-size:12px;font-weight:500;transition:all .18s;cursor:pointer;letter-spacing:.2px;}
+.seg-b.on{background:var(--s3);color:var(--t);font-weight:600;}
+/* Status bar */
+#sb{flex-shrink:0;padding:13px 18px 10px;background:rgba(6,6,8,.97);border-bottom:1px solid var(--br);position:relative;}
+#sb::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gd)60,transparent);}
+/* Content */
+#content{flex:1;overflow-y:auto;padding:14px 16px;padding-bottom:calc(68px + env(safe-area-inset-bottom,0));}
+/* Nav */
+#nav{flex-shrink:0;background:rgba(6,6,8,.96);backdrop-filter:blur(20px);border-top:1px solid var(--br);padding-bottom:env(safe-area-inset-bottom,0);display:flex;}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 3px 6px;background:transparent;border:none;cursor:pointer;position:relative;}
+.nb::after{content:'';position:absolute;top:0;left:22%;right:22%;height:1px;background:linear-gradient(90deg,transparent,var(--g),transparent);opacity:0;transition:opacity .2s;}
+.nb.on::after{opacity:1;}
+.ni{font-size:22px;color:var(--td);transition:color .2s;}
+.nl{font-size:9px;font-weight:500;letter-spacing:.5px;color:var(--td);transition:color .2s;}
+.nb.on .ni,.nb.on .nl{color:var(--g);}
+/* Screens */
+.scr{display:none;flex-direction:column;gap:11px;}
+.scr.on{display:flex;}
+/* Rows */
+.row{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--s1);border:1px solid var(--br);border-radius:var(--r);cursor:pointer;transition:all .15s;}
+.row:active{transform:scale(.98);}
+/* Overlay / Bottom Sheet */
+#ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;backdrop-filter:blur(3px);}
+.sheet{position:absolute;bottom:0;left:0;right:0;max-width:430px;margin:0 auto;background:var(--s1);border-radius:22px 22px 0 0;padding:0 18px calc(28px + env(safe-area-inset-bottom,0));max-height:90dvh;overflow-y:auto;}
+.sheet-handle{width:36px;height:4px;background:var(--s3);border-radius:99px;margin:10px auto 18px;}
+/* Onboarding */
+#ob{position:fixed;inset:0;background:var(--bg);z-index:500;overflow-y:auto;}
+.ob-p{display:none;min-height:100dvh;padding:52px 22px 36px;}
+.ob-p.on{display:flex;flex-direction:column;}
+/* Misc */
+.bar{background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden;}
+.bar-f{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+.tag{display:inline-flex;align-items:center;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:500;}
+.cap{font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--tm);}
+.sub{font-size:13px;color:var(--tm);line-height:1.45;}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.tog{width:44px;height:26px;border-radius:13px;background:var(--s3);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+.tog.on{background:var(--green);}
+.tog::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.3);}
+.tog.on::after{transform:translateX(18px);}
+.ai-box{margin-top:8px;padding:13px;background:rgba(201,168,76,.05);border:1px solid rgba(201,168,76,.12);border-radius:var(--r);font-size:13px;color:var(--tm);line-height:1.8;white-space:pre-wrap;display:none;}
+input[type=range]{padding:0;height:4px;border-radius:99px;border:none;background:var(--s3);accent-color:var(--g);}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="sb">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div id="sb_av" class="tap" onclick="openSettings()" style="width:38px;height:38px;border-radius:11px;background:var(--s2);border:1px solid var(--brg);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;">⚡</div>
+    <div style="flex:1;min-width:0;">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">
+        <span id="sb_name" style="font-size:15px;font-weight:700;color:var(--g);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px;">LifeOS</span>
+        <span id="sb_lvl" style="font-size:10px;font-weight:600;color:var(--td);white-space:nowrap;"></span>
+        <span id="sb_pro" style="display:none;font-size:9px;font-weight:700;padding:2px 6px;border-radius:5px;background:linear-gradient(90deg,var(--gd),var(--g));color:#040404;">PRO</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="bar" style="flex:1;height:3px;"><div id="sb_xpbar" class="bar-f" style="width:0%;background:linear-gradient(90deg,var(--gd),var(--gl));"></div></div>
+        <span id="sb_xpt" style="font-size:10px;color:var(--td);white-space:nowrap;">0 XP</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
+      <div style="text-align:center;">
+        <div id="sb_ring"></div>
+        <div class="cap" style="font-size:7px;margin-top:1px;">FOCUS</div>
+      </div>
+      <div style="text-align:right;min-width:36px;">
+        <div id="sb_xp" style="font-size:20px;font-weight:700;color:var(--td);line-height:1;font-variant-numeric:tabular-nums;">0</div>
+        <div id="sb_gate" class="cap" style="font-size:7px;margin-top:2px;color:var(--td);">LOCKED</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="content">
+  <div class="scr on" id="s_home"></div>
+  <div class="scr" id="s_quests"></div>
+  <div class="scr" id="s_vitals"></div>
+  <div class="scr" id="s_intel"></div>
+  <div class="scr" id="s_ich"></div>
+  <div class="scr" id="s_wachstum"></div>
+</div>
+
+<div id="nav">
+  <button class="nb on tap" data-v="home" onclick="goNav(this)"><span class="ni">⬡</span><span class="nl">HOME</span></button>
+  <button class="nb tap" data-v="quests" onclick="goNav(this)"><span class="ni">◎</span><span class="nl">QUESTS</span></button>
+  <button class="nb tap" data-v="vitals" onclick="goNav(this)"><span class="ni">♡</span><span class="nl">VITALS</span></button>
+  <button class="nb tap" data-v="intel" onclick="goNav(this)"><span class="ni">◈</span><span class="nl">INTEL</span></button>
+  <button class="nb tap" data-v="ich" onclick="goNav(this)"><span class="ni">◇</span><span class="nl">ICH</span></button>
+  <button class="nb tap" data-v="wachstum" onclick="goNav(this)"><span class="ni">✦</span><span class="nl">WACHSTUM</span></button>
+</div>
+
+<div id="ov" onclick="if(event.target===this)closeOv()">
+  <div class="sheet" id="ov_sheet">
+    <div class="sheet-handle"></div>
+    <div id="ov_body"></div>
+  </div>
+</div>
+
+<div id="ob">
+  <div class="ob-p on" id="ob0" style="justify-content:center;align-items:center;text-align:center;">
+    <div style="max-width:320px;width:100%;">
+      <div class="cap" style="letter-spacing:5px;color:var(--gd);margin-bottom:44px;">L I F E  O S</div>
+      <div style="font-size:46px;font-weight:700;letter-spacing:-.5px;line-height:1.1;margin-bottom:14px;">Das Leben als<br/><span class="shimmer">Meisterwerk</span></div>
+      <div style="font-size:15px;color:var(--tm);line-height:1.75;margin-bottom:52px;">Optimiere jeden Aspekt deiner Existenz.<br/>Dein Körper. Dein Geist. Deine Regeln.</div>
+      <button class="btn btn-gold tap" onclick="obGo(1)" style="margin-bottom:12px;">Starten →</button>
+      <div class="cap" style="font-size:8px;letter-spacing:2px;">FÜR MENSCHEN DIE SICH ETWAS WERT SIND</div>
+    </div>
+  </div>
+  <div class="ob-p" id="ob1">
+    <div style="max-width:390px;width:100%;margin:0 auto;flex:1;display:flex;flex-direction:column;">
+      <button class="tap" onclick="obGo(0)" style="background:none;border:none;color:var(--tm);font-size:14px;margin-bottom:24px;display:flex;align-items:center;gap:6px;padding:0;align-self:flex-start;">← Zurück</button>
+      <div id="ob_d1" style="display:flex;gap:4px;margin-bottom:22px;"></div>
+      <div class="cap" style="margin-bottom:7px;">Schritt 1 von 3</div>
+      <div style="font-size:26px;font-weight:700;margin-bottom:4px;">Dein Charakter</div>
+      <div class="sub" style="margin-bottom:26px;">Wie soll die App dich nennen?</div>
+      <div style="display:flex;flex-direction:column;gap:9px;flex:1;">
+        <div><div class="cap" style="font-size:9px;margin-bottom:5px;">NAME *</div><input id="ob_name" type="text" placeholder="Dein Name..." style="font-size:17px;font-weight:700;"/></div>
+        <div><div class="cap" style="font-size:9px;margin-bottom:5px;">TITEL <span style="color:var(--td);font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;">optional</span></div><input id="ob_title" type="text" placeholder="Entrepreneur · Athlet · Optimierer"/></div>
+        <div><div class="cap" style="font-size:9px;margin-bottom:5px;">MOTTO <span style="color:var(--td);font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;">optional</span></div><input id="ob_quote" type="text" placeholder="Ein Satz der dich antreibt..."/></div>
+      </div>
+      <button class="btn btn-gold tap" onclick="obS1()" style="margin-top:24px;">Weiter →</button>
+    </div>
+  </div>
+  <div class="ob-p" id="ob2">
+    <div style="max-width:390px;width:100%;margin:0 auto;flex:1;display:flex;flex-direction:column;">
+      <button class="tap" onclick="obGo(1)" style="background:none;border:none;color:var(--tm);font-size:14px;margin-bottom:24px;display:flex;align-items:center;gap:6px;padding:0;align-self:flex-start;">← Zurück</button>
+      <div id="ob_d2" style="display:flex;gap:4px;margin-bottom:22px;"></div>
+      <div class="cap" style="margin-bottom:7px;">Schritt 2 von 3</div>
+      <div style="font-size:26px;font-weight:700;margin-bottom:4px;">Deine Ziele</div>
+      <div class="sub" style="margin-bottom:4px;">Was willst du erreichen?</div>
+      <div style="font-size:12px;color:var(--g);margin-bottom:18px;font-weight:500;">Mehrere Ziele möglich – wähle alles was passt</div>
+      <div id="ob_goals" style="display:flex;flex-direction:column;gap:7px;flex:1;"></div>
+      <div id="ob_cwrap" style="display:none;margin-top:8px;"><textarea id="ob_custom" rows="2" placeholder="Beschreibe dein Ziel genau..."></textarea></div>
+      <div id="ob_gcnt" style="height:20px;font-size:12px;color:var(--g);font-weight:600;text-align:center;margin-top:8px;"></div>
+      <button class="btn btn-gold tap" onclick="obS2()" style="margin-top:8px;">Weiter →</button>
+    </div>
+  </div>
+  <div class="ob-p" id="ob3">
+    <div style="max-width:390px;width:100%;margin:0 auto;flex:1;display:flex;flex-direction:column;">
+      <button class="tap" onclick="obGo(2)" style="background:none;border:none;color:var(--tm);font-size:14px;margin-bottom:24px;display:flex;align-items:center;gap:6px;padding:0;align-self:flex-start;">← Zurück</button>
+      <div id="ob_d3" style="display:flex;gap:4px;margin-bottom:22px;"></div>
+      <div class="cap" style="margin-bottom:7px;">Schritt 3 von 3</div>
+      <div style="font-size:26px;font-weight:700;margin-bottom:4px;">Dein Status</div>
+      <div class="sub" style="margin-bottom:22px;">Damit der Plan zu dir passt</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px;">
+        <div><div class="cap" style="font-size:8px;margin-bottom:4px;">ALTER</div><input id="ob_age" type="number" placeholder="–" style="text-align:center;font-size:20px;font-weight:700;padding:9px 4px;"/></div>
+        <div><div class="cap" style="font-size:8px;margin-bottom:4px;">KG</div><input id="ob_kg" type="number" placeholder="–" style="text-align:center;font-size:20px;font-weight:700;padding:9px 4px;"/></div>
+        <div><div class="cap" style="font-size:8px;margin-bottom:4px;">CM</div><input id="ob_cm" type="number" placeholder="–" style="text-align:center;font-size:20px;font-weight:700;padding:9px 4px;"/></div>
+      </div>
+      <div id="ob_qsels" style="display:flex;flex-direction:column;gap:13px;margin-bottom:18px;"></div>
+      <div style="margin-bottom:22px;"><div class="cap" style="font-size:9px;margin-bottom:5px;">EXTRA-FOKUS</div><div id="ob_fp" style="display:flex;flex-wrap:wrap;gap:6px;"></div></div>
+      <button id="ob_fin" class="btn btn-gold tap" onclick="obFinish()">Plan erstellen →</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ── STORAGE ───────────────────────────────────────
+const ls=(k,v)=>{if(v===undefined){try{const r=localStorage.getItem(k);return r?JSON.parse(r):null;}catch{return null;}}try{localStorage.setItem(k,JSON.stringify(v));}catch{}};
+const today=()=>new Date().toDateString();
+
+// ── CONSTANTS ─────────────────────────────────────
+const GOALS={
+  hybrid:{id:'hybrid',n:'Hybrid Athlet',ic:'⚔️',c:'#30D158',d:'Kraft + Ausdauer vereint'},
+  builder:{id:'builder',n:'Bodybuilder',ic:'💪',c:'#FF9F0A',d:'Maximale Muskelmasse & Ästhetik'},
+  longevity:{id:'longevity',n:'Longevity',ic:'🌿',c:'#5AC8FA',d:'Länger, gesünder, schärfer'},
+  biohacker:{id:'biohacker',n:'Biohacker',ic:'🧬',c:'#BF5AF2',d:'Körper als System optimieren'},
+  entrepreneur:{id:'entrepreneur',n:'Unternehmer',ic:'🧠',c:'#0A84FF',d:'Mentale Schärfe als Ressource'},
+  custom:{id:'custom',n:'Eigenes Ziel',ic:'⚡',c:'#C9A84C',d:'Deine Regeln, dein Weg'},
+};
+const LEVELS=[{l:1,n:'Recruit',min:0,max:199},{l:2,n:'Operative',min:200,max:499},{l:3,n:'Agent',min:500,max:999},{l:4,n:'Specialist',min:1000,max:1999},{l:5,n:'Elite',min:2000,max:3499},{l:6,n:'Veteran',min:3500,max:5999},{l:7,n:'Master',min:6000,max:9999},{l:8,n:'Legend',min:10000,max:Infinity}];
+const getLvl=xp=>{const l=LEVELS.find(x=>xp>=x.min&&xp<=x.max)||LEVELS[7];return{...l,nx:LEVELS[l.l]||l};};
+
+// ── DEFAULT CONFIG ────────────────────────────────
+const DEF={
+  proteinGoal:160,waterGoal:3000,gateXP:70,sleepGoal:8,
+  habits:[
+    {id:'sport',cat:'body',ic:'🏋',label:'Training',xp:30,on:true},
+    {id:'cold',cat:'body',ic:'🚿',label:'Kaltdusche',xp:25,on:true},
+    {id:'walk',cat:'body',ic:'🚶',label:'Spaziergang',xp:15,on:true},
+    {id:'read',cat:'mind',ic:'📖',label:'Lesen',xp:20,on:true},
+    {id:'meditate',cat:'mind',ic:'🧘',label:'Meditation',xp:15,on:true},
+    {id:'journal',cat:'mind',ic:'✍',label:'Journaling',xp:15,on:true},
+    {id:'nosnooze',cat:'discipline',ic:'⏰',label:'Kein Snooze',xp:20,on:true},
+    {id:'plan',cat:'discipline',ic:'📋',label:'Tag geplant',xp:15,on:true},
+  ],
+  supps:[
+    {id:'kre',n:'Kreatin',d:'5g',ic:'💊',t:'07:30',on:true},
+    {id:'vitd',n:'Vitamin D',d:'5000 IE',ic:'☀️',t:'08:00',on:true},
+    {id:'om3',n:'Omega 3',d:'2 Kps.',ic:'🐟',t:'12:00',on:true},
+    {id:'pre',n:'Pre-Workout',d:'1 Prtg.',ic:'⚡',t:'17:30',on:true},
+    {id:'prot',n:'Protein Shake',d:'30g',ic:'🥤',t:'19:00',on:true},
+    {id:'mag',n:'Magnesium',d:'400mg',ic:'🌙',t:'21:30',on:false},
+    {id:'ash',n:'Ashwagandha',d:'300mg',ic:'🌿',t:'21:00',on:false},
+    {id:'zink',n:'Zink',d:'15mg',ic:'⚗️',t:'20:00',on:false},
+  ],
+  foods:[
+    {id:'f1',n:'Hähnchenbrust 150g',kcal:165,p:31,c:0,f:3,ic:'🍗'},
+    {id:'f2',n:'Lachs 150g',kcal:280,p:34,c:0,f:16,ic:'🐟'},
+    {id:'f3',n:'Eier x2',kcal:140,p:12,c:1,f:10,ic:'🥚'},
+    {id:'f4',n:'Quark 200g',kcal:130,p:24,c:6,f:1,ic:'🫙'},
+    {id:'f5',n:'Haferflocken 80g',kcal:300,p:10,c:54,f:6,ic:'🌾'},
+    {id:'f6',n:'Protein Shake',kcal:130,p:25,c:5,f:2,ic:'🥤'},
+    {id:'f7',n:'Avocado ½',kcal:120,p:1,c:6,f:11,ic:'🥑'},
+    {id:'f8',n:'Joghurt 200g',kcal:130,p:20,c:8,f:3,ic:'🥛'},
+  ],
+  recovery:[
+    {id:'sau',n:'Sauna',ic:'🔥',c:'#FF9F0A',t:'15–30 Min',on:true},
+    {id:'col',n:'Kältetherapie',ic:'🧊',c:'#5AC8FA',t:'2–5 Min',on:true},
+    {id:'str',n:'Stretching',ic:'🧘',c:'#BF5AF2',t:'15 Min',on:true},
+    {id:'fsc',n:'Faszienrolle',ic:'🫀',c:'#30D158',t:'10 Min',on:true},
+    {id:'rlt',n:'Rotlicht',ic:'🔴',c:'#FF453A',t:'15 Min',on:false},
+    {id:'mas',n:'Massage',ic:'💆',c:'#0A84FF',t:'30–60 Min',on:false},
+  ],
+  bodyFix:[],
+};
+const getCfg=()=>ls('los_cfg')||DEF;
+const saveCfg=c=>ls('los_cfg',c);
+
+// ── STATE ─────────────────────────────────────────
+let P=null,isPro=false,totalXP=0,DAY={},VIEW='home';
+function initState(){
+  P=ls('los_profile');isPro=ls('los_pro')||false;totalXP=ls('los_xp')||0;
+  const d=ls('los_day');DAY=(d&&d.date===today())?d:{date:today(),habits:[],xp:0,water:0,meals:[],supps:{},sleep:null,mood:null,energy:null,recovery:[],badges:[],custom:null};
+}
+function saveDay(){ls('los_day',DAY);}
+function addXP(n){totalXP+=n;ls('los_xp',totalXP);}
+
+// ── COMPUTED ──────────────────────────────────────
+const pColor=()=>P?.color||'#C9A84C';
+const totals=()=>DAY.meals.reduce((a,m)=>({kcal:a.kcal+m.kcal,p:a.p+m.p,c:a.c+m.c,f:a.f+m.f}),{kcal:0,p:0,c:0,f:0});
+function sleepH(){if(!DAY.sleep)return null;const[bh,bm]=DAY.sleep.bed.split(':').map(Number);const[wh,wm]=DAY.sleep.wake.split(':').map(Number);let m=(wh*60+wm)-(bh*60+bm);if(m<0)m+=1440;return(m/60).toFixed(1);}
+function habCats(){const c=getCfg();return{body:c.habits.some(h=>h.cat==='body'&&h.on&&DAY.habits.includes(h.id)),mind:c.habits.some(h=>h.cat==='mind'&&h.on&&DAY.habits.includes(h.id)),discipline:c.habits.some(h=>h.cat==='discipline'&&h.on&&DAY.habits.includes(h.id))};}
+function gateOpen(){const hc=habCats();return DAY.xp>=getCfg().gateXP&&hc.body&&hc.mind&&hc.discipline;}
+function focusScore(){
+  const t=totals(),c=getCfg();let s=0;
+  s+=Math.min(25,(DAY.xp/c.gateXP)*25);
+  s+=Math.min(15,(t.p/c.proteinGoal)*15);
+  s+=Math.min(10,(DAY.water/c.waterGoal)*10);
+  if(DAY.sleep)s+=Math.min(20,(DAY.sleep.q/5)*20);
+  if(DAY.mood&&DAY.energy)s+=Math.min(8,((DAY.mood+DAY.energy)/10)*8);
+  s+=Math.min(12,(DAY.recovery.length/3)*12);
+  s+=Math.min(10,(Object.keys(DAY.supps).length/Math.max(getCfg().supps.filter(x=>x.on).length,1))*10);
+  return Math.round(Math.min(100,s));
+}
+
+// ── HELPERS ───────────────────────────────────────
+const $=id=>document.getElementById(id);
+function mk(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!==undefined)e.innerHTML=html;return e;}
+const div=(cls,html)=>mk('div',cls,html);
+function btnEl(cls,text,cb,style){const b=mk('button',cls,text);if(cb)b.onclick=cb;if(style)b.style.cssText=style;return b;}
+function ring(score,size,c){
+  size=size||42;const stroke=2.5,r=size/2-stroke-2,ci=2*Math.PI*r;
+  const col=score>=70?'#30D158':score>=50?(c||'#C9A84C'):'#FF453A';
+  return`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="display:block"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="${stroke}"/><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${col}" stroke-width="${stroke}" stroke-dasharray="${ci.toFixed(1)}" stroke-dashoffset="${(ci*(1-score/100)).toFixed(1)}" stroke-linecap="round" transform="rotate(-90 ${size/2} ${size/2})" style="transition:stroke-dashoffset .7s cubic-bezier(.4,0,.2,1)"/><text x="${size/2}" y="${size/2+4}" text-anchor="middle" font-size="${size>60?16:9}" font-weight="700" fill="${score>=40?col:'#2A2820'}" font-family="-apple-system,sans-serif">${score}</text></svg>`;
+}
+
+// ── AI ────────────────────────────────────────────
+async function callAI(prompt,sys,maxTok){
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTok||500,system:sys||'Antworte auf Deutsch, direkt, ohne Einleitung.',messages:[{role:'user',content:prompt}]})});
+  const d=await r.json();return d.content?.[0]?.text||'Fehler.';
+}
+function aiBtnEl(label,promptFn,container){
+  const wrap=div('');
+  const b=btnEl('btn btn-sec btn-sm tap','◈  '+label.toUpperCase());
+  b.style.cssText='border-color:rgba(201,168,76,.25);color:var(--g);font-size:11px;letter-spacing:1px;margin-top:4px;';
+  const box=div('ai-box');
+  let open=false;
+  b.onclick=async()=>{
+    if(open){box.style.display='none';open=false;return;}
+    b.textContent='...';b.style.opacity='.5';
+    try{box.innerHTML=(await callAI(promptFn())).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br/>');box.style.display='block';open=true;}
+    catch{box.innerHTML='Verbindungsfehler.';box.style.display='block';open=true;}
+    b.textContent='◈  '+label.toUpperCase();b.style.opacity='1';
+  };
+  wrap.appendChild(b);wrap.appendChild(box);
+  if(container)container.appendChild(wrap);
+  return wrap;
+}
+
+// ── STATUS BAR ────────────────────────────────────
+function updateSB(){
+  if(!P)return;
+  const lvl=getLvl(totalXP),sc=focusScore(),gate=gateOpen(),pc=pColor();
+  $('sb_av').textContent=P.avatar||'⚡';$('sb_av').style.borderColor=pc+'50';
+  $('sb_name').textContent=P.name;$('sb_name').style.color=pc;
+  $('sb_lvl').textContent=lvl.n+' · LV'+lvl.l;
+  $('sb_pro').style.display=isPro?'inline-flex':'none';
+  const pct=lvl.max===Infinity?100:Math.round(((totalXP-lvl.min)/(lvl.max-lvl.min))*100);
+  $('sb_xpbar').style.width=pct+'%';
+  $('sb_xpt').textContent=totalXP+' XP';
+  $('sb_ring').innerHTML=ring(sc,38,pc);
+  $('sb_xp').textContent=DAY.xp;$('sb_xp').style.color=gate?'#30D158':'var(--td)';
+  $('sb_gate').textContent=gate?'OPEN':'LOCKED';$('sb_gate').style.color=gate?'#30D158':'var(--td)';
+}
+
+// ── NAVIGATION ────────────────────────────────────
+function goNav(btn){
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  btn.classList.add('on');VIEW=btn.dataset.v;
+  const scr=$('s_'+VIEW);scr.classList.add('on');scr.innerHTML='';
+  scr.classList.remove('au');void scr.offsetWidth;scr.classList.add('au');
+  RENDER[VIEW](scr);
+}
+function refresh(v){
+  const scr=$('s_'+v);if(!scr||!scr.classList.contains('on'))return;
+  scr.innerHTML='';RENDER[v](scr);
+}
+
+// ── OVERLAY ───────────────────────────────────────
+function openOv(buildFn){
+  const b=$('ov_body');b.innerHTML='';buildFn(b);
+  $('ov').style.display='block';
+  $('ov_sheet').className='sheet asb';
+}
+function closeOv(){$('ov').style.display='none';}
+
+// Global sleep edit functions (needed for onclick in innerHTML)
+window._sleepEdit=function(conId){
+  const con=$(conId);if(!con)return;
+  buildSleepForm(con,conId);
+};
+
+function buildSleepWidget(con,conId){
+  con.innerHTML='';
+  const sh=sleepH();const c=getCfg();
+  if(DAY.sleep){
+    const card=div('card');
+    const qual=[1,2,3,4,5].map(v=>`<span style="font-size:15px;color:${v<=DAY.sleep.q?'#BF5AF2':'#222228'};">${v<=DAY.sleep.q?'★':'☆'}</span>`).join('');
+    card.innerHTML=`<div style="display:flex;gap:14px;align-items:center;"><div style="text-align:center;min-width:52px;"><div style="font-size:34px;font-weight:700;color:${parseFloat(sh)>=c.sleepGoal*0.9?'#BF5AF2':'#FF9F0A'};line-height:1;">${sh}</div><div class="cap" style="font-size:8px;margin-top:3px;">STUNDEN</div></div><div style="flex:1;"><div style="font-size:13px;color:var(--tm);margin-bottom:6px;">🌙 ${DAY.sleep.bed}  ☀️ ${DAY.sleep.wake}</div><div style="display:flex;gap:2px;">${qual}</div></div><button onclick="_sleepEdit('${conId}')" style="background:var(--s2);border:1px solid var(--br);border-radius:8px;padding:6px 13px;color:var(--tm);font-size:12px;cursor:pointer;">Edit</button></div>`;
+    con.appendChild(card);
+  }else{buildSleepForm(con,conId);}
+}
+function buildSleepForm(con,conId){
+  con.innerHTML='';
+  const prev=DAY.sleep||{};
+  let f={bed:prev.bed||'22:30',wake:prev.wake||'06:30',q:prev.q||4};
+  const card=div('card-hi');
+  card.innerHTML=`<div class="cap" style="font-size:9px;margin-bottom:13px;">SCHLAF EINTRAGEN</div>`;
+  const gr=div('');gr.style.cssText='display:flex;gap:8px;margin-bottom:12px;';
+  [['bed','Eingeschlafen'],['wake','Aufgewacht']].forEach(([k,l])=>{
+    const cell=div('');cell.style.flex='1';
+    cell.innerHTML=`<div class="cap" style="font-size:8px;margin-bottom:5px;">${l}</div>`;
+    const inp=mk('input','');inp.type='time';inp.value=f[k];inp.oninput=e=>f[k]=e.target.value;cell.appendChild(inp);gr.appendChild(cell);
+  });
+  card.appendChild(gr);
+  card.innerHTML+=`<div class="cap" style="font-size:8px;margin-bottom:7px;">QUALITÄT</div>`;
+  const qr=div('');qr.style.cssText='display:flex;gap:5px;margin-bottom:13px;';
+  [1,2,3,4,5].forEach(v=>{
+    const b=mk('button','tap','★'.repeat(v));b.style.cssText=`flex:1;padding:8px 2px;border-radius:9px;border:1px solid ${f.q===v?'rgba(191,90,242,.5)':'var(--br)'};background:${f.q===v?'rgba(191,90,242,.15)':'var(--s2)'};color:${f.q===v?'#BF5AF2':'var(--td)'};font-size:12px;cursor:pointer;transition:all .15s;`;
+    b.onclick=()=>{f.q=v;qr.querySelectorAll('button').forEach((x,i)=>{x.style.background=i+1===v?'rgba(191,90,242,.15)':'var(--s2)';x.style.borderColor=i+1===v?'rgba(191,90,242,.5)':'var(--br)';x.style.color=i+1===v?'#BF5AF2':'var(--td)';});};qr.appendChild(b);
+  });
+  card.appendChild(qr);
+  const svBtn=btnEl('btn btn-gold tap','Speichern',()=>{DAY.sleep=f;saveDay();buildSleepWidget(con,conId);updateSB();});card.appendChild(svBtn);
+  if(DAY.sleep){
+    const cBtn=btnEl('btn btn-sec tap','Abbrechen',()=>buildSleepWidget(con,conId),'margin-top:6px;');card.appendChild(cBtn);
+  }
+  con.appendChild(card);
+}
+
+// ── RENDER FUNCTIONS ──────────────────────────────
+const RENDER={};
+
+RENDER.home=s=>{
+  const t=totals(),c=getCfg(),sc=focusScore(),sh=sleepH(),gate=gateOpen(),pc=pColor();
+  const gp=GOALS[P?.goalIds?.[0]]||GOALS.custom;
+
+  // Hero
+  const hero=div('card-hi');
+  hero.innerHTML=`<div class="cap" style="margin-bottom:8px;font-size:9px;">TODAY'S DIRECTIVE</div>
+  <div style="font-size:15px;font-style:italic;color:var(--t);line-height:1.7;margin-bottom:12px;">"${P?.quote||gp.d}"</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <div><div style="font-size:13px;font-weight:600;">${P?.name}</div><div class="sub" style="font-size:11px;">${P?.titleTxt||gp.n}</div></div>
+    ${ring(sc,54,pc)}
+  </div>`;
+  s.appendChild(hero);
+
+  // Check-in
+  if(!DAY.mood||!DAY.energy){
+    const ci=div('card');ci.innerHTML=`<div class="cap" style="color:var(--g);margin-bottom:12px;font-size:9px;">CHECK-IN</div>`;
+    const row=div('');row.style.cssText='display:flex;gap:12px;';
+    ['mood','energy'].forEach(k=>{
+      const col=div('');col.style.flex='1';
+      col.innerHTML=`<div class="cap" style="font-size:8px;margin-bottom:8px;">${k==='mood'?'STIMMUNG':'ENERGIE'}</div>`;
+      const em=div('');em.style.cssText='display:flex;gap:4px;';
+      ['😞','😕','😐','🙂','😊'].forEach((e2,i)=>{
+        const b=mk('button','tap',e2);b.style.cssText='flex:1;padding:8px 2px;border-radius:9px;border:1px solid var(--br);background:var(--s2);font-size:15px;cursor:pointer;transition:all .15s;';
+        b.onclick=()=>{DAY[k]=i+1;saveDay();em.querySelectorAll('button').forEach((x,j)=>{x.style.background=j===i?pc+'20':'var(--s2)';x.style.borderColor=j===i?pc+'60':'var(--br)';});updateSB();};
+        em.appendChild(b);
+      });
+      col.appendChild(em);row.appendChild(col);
+    });
+    ci.appendChild(row);s.appendChild(ci);
+  }
+
+  // Stats
+  const sg=div('');sg.style.cssText='display:flex;gap:8px;';
+  [{l:'PROTEIN',v:t.p+'g',ok:t.p>=c.proteinGoal*.7,col:'#30D158'},{l:'WASSER',v:Math.round(DAY.water/c.waterGoal*100)+'%',ok:DAY.water>=c.waterGoal*.7,col:'#5AC8FA'},{l:'SCHLAF',v:sh?sh+'h':'–',ok:!!sh&&parseFloat(sh)>=c.sleepGoal*.9,col:'#BF5AF2'},{l:'QUESTS',v:DAY.habits.length,ok:DAY.habits.length>=4,col:'#C9A84C'}].forEach(st=>{
+    const b=div('');b.style.cssText=`padding:13px 8px;text-align:center;background:var(--s1);border:1px solid ${st.ok?st.col+'28':'var(--br)'};border-radius:var(--r);flex:1;`;
+    b.innerHTML=`<div style="font-size:20px;font-weight:700;color:${st.ok?st.col:'var(--td)'};font-variant-numeric:tabular-nums;letter-spacing:-.5px;">${st.v}</div><div class="cap" style="font-size:8px;margin-top:3px;">${st.l}</div>`;
+    sg.appendChild(b);
+  });
+  s.appendChild(sg);
+
+  // Gate
+  const gc=div('');gc.style.cssText=`padding:14px 15px;background:${gate?'rgba(48,209,88,.06)':'var(--s1)'};border:1px solid ${gate?'rgba(48,209,88,.22)':'var(--br)'};border-radius:var(--r);display:flex;align-items:center;gap:13px;`;
+  const gv=div('');gv.style.flex='1';gv.innerHTML=`<div style="font-size:15px;font-weight:600;color:${gate?'#30D158':'var(--tm)'};">${gate?'Zugang gewährt':'Zugang gesperrt'}</div><div class="sub" style="font-size:12px;margin-top:2px;">${gate?Math.round((DAY.xp/c.gateXP)*30)+' Min verdient':(c.gateXP-DAY.xp)+' XP fehlen'}</div>`;
+  const gicon=div('',gate?'🔓':'🔒');gicon.style.fontSize='26px';gc.appendChild(gicon);gc.appendChild(gv);
+  if(gate){const tb=btnEl('btn btn-sm tap','Timer',()=>openGateTimer());tb.style.cssText='background:rgba(48,209,88,.12);border:1px solid rgba(48,209,88,.28);color:#30D158;';gc.appendChild(tb);}
+  s.appendChild(gc);
+
+  // Priorities
+  const PR={hybrid:['Zone 2 Cardio 3x/Woche','Krafttraining 3x/Woche','Protein 1.8g/kg täglich'],builder:['Progressive Überlastung täglich','160g+ Protein täglich','8h Schlaf für GH-Produktion'],longevity:['Morgenlicht 10 Min täglich','Zone 2 täglich 30 Min','Stressmanagement aktiv'],biohacker:['HRV täglich messen','Schlaf-Protokoll einhalten','Supplement-Stack optimieren'],entrepreneur:['Deep Work 3h morgens','Kein Social Media vor 10h','Meditation täglich']};
+  const allPrios=[...new Set((P?.goalIds||[]).flatMap(id=>PR[id]||[]))].slice(0,4);
+  if(allPrios.length){
+    const pcard=div('card');pcard.innerHTML=`<div class="cap" style="color:${pc};font-size:9px;margin-bottom:12px;">◇ PRIORITÄTEN</div>`;
+    allPrios.forEach((p2,i)=>{
+      const r=div('');r.style.cssText=`display:flex;gap:10px;padding:7px 0;${i>0?'border-top:1px solid var(--br)':''}`;
+      r.innerHTML=`<div class="dot" style="background:${pc};margin-top:5px;"></div><div style="font-size:14px;">${p2}</div>`;pcard.appendChild(r);
+    });
+    s.appendChild(pcard);
+  }
+  aiBtnEl('Was tue ich jetzt?',()=>{
+    const t2=totals(),c2=getCfg(),sh2=sleepH();
+    const bio=P?.bio||{};
+    return`Nutzer: ${P?.name}, Ziele: ${P?.goalNames||'?'}, Alter: ${bio.age||'?'} J, ${bio.kg||'?'} kg, Training: ${bio.trainLvl||'?'}, Schlaf heute: ${sh2||'?'}h (Ziel: ${bio.sleep||'?'}h), Stress: ${bio.stress||'?'}, Zeit/Tag: ${bio.time||'?'} Min. Protein heute: ${t2.p}g/${c2.proteinGoal}g. XP: ${DAY.xp}/${c2.gateXP}. Energie: ${DAY.energy||'?'}/5. Uhrzeit: ${new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}. 3 konkrete Empfehlungen JETZT passend zu seinen Zielen und Biometrie. Kein Intro. Deutsch.`;
+  },s);
+
+  // KI COACH BUTTON - prominent
+  const coachCard=div('');
+  coachCard.style.cssText=`padding:15px 16px;background:var(--gdd);border:1px solid var(--brg);border-radius:var(--r);cursor:pointer;position:relative;overflow:hidden;`;
+  const hasBio=P?.bio?.age||P?.bio?.kg;
+  coachCard.innerHTML=`<div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--g),transparent)"></div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div style="width:42px;height:42px;border-radius:11px;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🤖</div>
+    <div style="flex:1;">
+      <div style="font-size:16px;font-weight:700;color:var(--g);">KI-Coach</div>
+      <div class="sub" style="font-size:12px;margin-top:2px;">${hasBio?'Kennt dein komplettes Profil – frag alles':'Profil vervollständigen für bessere Antworten'}</div>
+    </div>
+    <div style="font-size:20px;color:var(--gd);">→</div>
+  </div>`;
+  coachCard.onclick=()=>openCoach();
+  s.appendChild(coachCard);
+
+  // Show bio update hint if missing
+  if(!hasBio){
+    const hint=div('');hint.style.cssText='padding:12px 14px;background:rgba(255,159,10,.06);border:1px solid rgba(255,159,10,.2);border-radius:var(--r);display:flex;align-items:center;gap:12px;cursor:pointer;';
+    hint.innerHTML=`<span style="font-size:20px;">⚠️</span><div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#FF9F0A;">Profil unvollständig</div><div class="sub" style="font-size:12px;margin-top:1px;">Alter, Gewicht & Körperdaten fehlen → KI-Empfehlungen ungenau</div></div><span style="font-size:14px;color:#FF9F0A;">→</span>`;
+    hint.onclick=()=>openProfileEdit();
+    s.appendChild(hint);
+  }
+
+};
+
+RENDER.quests=s=>{
+  const c=getCfg(),pc=pColor(),hc=habCats();
+  s.innerHTML=`<div style="font-size:24px;font-weight:700;letter-spacing:-.3px;">Quests</div>`;
+
+  // Category indicators
+  const cr=div('');cr.style.cssText='display:flex;gap:8px;';
+  [{k:'body',l:'Körper',ic:'⚔'},{k:'mind',l:'Geist',ic:'🧠'},{k:'discipline',l:'Disziplin',ic:'🛡'}].forEach(cat=>{
+    const done=hc[cat.k];
+    const b=div('');b.style.cssText=`flex:1;padding:10px 6px;text-align:center;background:${done?pc+'10':'var(--s1)'};border:1px solid ${done?pc+'38':'var(--br)'};border-radius:var(--r);transition:all .3s;`;
+    b.innerHTML=`<div style="font-size:19px;margin-bottom:4px;">${cat.ic}</div><div class="cap" style="font-size:8px;color:${done?pc:'var(--td)'};">${done?'✓ ':''}${cat.l}</div>`;cr.appendChild(b);
+  });
+  s.appendChild(cr);
+
+  // Habits by category
+  [{cat:'body',l:'⚔  KÖRPER'},{cat:'mind',l:'🧠  GEIST'},{cat:'discipline',l:'🛡  DISZIPLIN'}].forEach(({cat,l})=>{
+    const habs=c.habits.filter(h=>h.cat===cat&&h.on);if(!habs.length)return;
+    const lbl=div('cap',l);lbl.style.cssText='font-size:9px;margin-top:6px;margin-bottom:7px;';s.appendChild(lbl);
+    habs.forEach(hb=>{
+      const done=DAY.habits.includes(hb.id);
+      const row=div(`row${done?' au2':''}`);
+      row.style.cssText=`background:${done?pc+'06':'var(--s1)'};border-color:${done?pc+'22':'var(--br)'};opacity:${done?.45:1};${done?'pointer-events:none':'cursor:pointer'}`;
+      row.innerHTML=`<span style="font-size:22px;">${hb.ic}</span><div style="flex:1;"><div style="font-size:15px;font-weight:${done?400:500};">${hb.label}</div></div><div style="padding:4px 9px;border-radius:7px;background:${done?pc+'15':'var(--s3)'};color:${done?pc:'var(--tm)'};font-size:12px;font-weight:600;">${done?'✓':'+'+hb.xp+' XP'}</div>`;
+      if(!done)row.onclick=()=>{
+        DAY.habits.push(hb.id);DAY.xp+=hb.xp;addXP(hb.xp);saveDay();
+        row.style.opacity='.45';row.style.background=pc+'06';row.style.borderColor=pc+'22';row.style.pointerEvents='none';
+        row.querySelectorAll('div:last-child')[0].textContent='✓';row.querySelectorAll('div:last-child')[0].style.cssText=`padding:4px 9px;border-radius:7px;background:${pc}15;color:${pc};font-size:12px;font-weight:600;`;
+        updateSB();
+        // Update cat indicators
+        const newHC=habCats();cr.children[['body','mind','discipline'].indexOf(cat)]?.style&&(()=>{const done2=newHC[cat];const b2=cr.children[['body','mind','discipline'].indexOf(cat)];b2.style.background=done2?pc+'10':'var(--s1)';b2.style.borderColor=done2?pc+'38':'var(--br)';b2.querySelector('.cap').textContent=done2?'✓ '+cat==='body'?'Körper':cat==='mind'?'Geist':'Disziplin':'';})();
+      };
+      s.appendChild(row);
+    });
+  });
+
+  // Custom task
+  const ct=div('card');ct.style.marginTop='4px';
+  if(DAY.custom){ct.innerHTML=`<div class="cap" style="font-size:9px;margin-bottom:6px;">EIGENE AUFGABE</div><div style="font-size:15px;color:${pc};">✓ "${DAY.custom}"</div>`;}
+  else{
+    ct.innerHTML=`<div class="cap" style="font-size:9px;margin-bottom:9px;">EIGENE AUFGABE +20 XP</div>`;
+    const row=div('');row.style.cssText='display:flex;gap:8px;';
+    const inp=mk('input','');inp.type='text';inp.placeholder='Was hast du heute getan?';inp.style.flex='1';
+    const ab=div('btn-icon tap','✓');ab.style.cssText='background:var(--gdd);color:var(--g);font-size:18px;font-weight:700;border:1px solid var(--brg);display:flex;align-items:center;justify-content:center;cursor:pointer;';
+    ab.onclick=()=>{const v=inp.value.trim();if(!v||DAY.custom)return;DAY.custom=v;DAY.habits.push('custom');DAY.xp+=20;addXP(20);saveDay();updateSB();ct.innerHTML=`<div class="cap" style="font-size:9px;margin-bottom:6px;">EIGENE AUFGABE</div><div style="font-size:15px;color:${pc};">✓ "${v}"</div>`;};
+    inp.onkeydown=e=>{if(e.key==='Enter')ab.onclick();};
+    row.appendChild(inp);row.appendChild(ab);ct.appendChild(row);
+  }
+  s.appendChild(ct);
+
+  // Gate timer
+  if(gateOpen()){
+    const earned=Math.round((DAY.xp/c.gateXP)*30);
+    const gc=div('');gc.style.cssText='padding:13px 14px;background:rgba(48,209,88,.05);border:1px solid rgba(48,209,88,.2);border-radius:var(--r);';
+    gc.innerHTML=`<div class="cap" style="color:#30D158;font-size:9px;margin-bottom:9px;">🔓 ${earned} MIN SOCIAL MEDIA VERDIENT</div>`;
+    const br=div('');br.style.cssText='display:flex;gap:6px;';
+    [5,10,15,20].filter(m=>m<=earned).forEach(m=>{
+      const b=btnEl('btn btn-sm tap',m+'m',()=>openGateTimer(m));b.style.cssText='background:rgba(48,209,88,.1);border:1px solid rgba(48,209,88,.25);color:#30D158;';br.appendChild(b);
+    });
+    gc.appendChild(br);s.appendChild(gc);
+  }
+
+  // Edit habits
+  const eb=btnEl('btn btn-sec btn-sm tap','⚙  Habits anpassen',openHabitEditor,'margin-top:4px;');s.appendChild(eb);
+};
+
+RENDER.vitals=s=>{
+  const c=getCfg(),t=totals(),pc=pColor();
+  s.innerHTML=`<div style="font-size:24px;font-weight:700;letter-spacing:-.3px;">Vitals</div>`;
+
+  // Macros
+  const mac=div('card');
+  const mg=div('');mg.style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;';
+  [{l:'KCAL',v:t.kcal,col:'#C9A84C'},{l:'PROTEIN',v:t.p+'g',col:'#30D158'},{l:'CARBS',v:t.c+'g',col:'#0A84FF'},{l:'FETT',v:t.f+'g',col:'#BF5AF2'}].forEach(st=>{
+    const b=div('');b.style.textAlign='center';b.innerHTML=`<div style="font-size:19px;font-weight:700;color:${st.col};font-variant-numeric:tabular-nums;">${st.v}</div><div class="cap" style="font-size:8px;margin-top:2px;">${st.l}</div>`;mg.appendChild(b);
+  });
+  mac.appendChild(mg);
+  const ptRow=div('');ptRow.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;';
+  ptRow.innerHTML=`<div class="cap" style="font-size:9px;">PROTEIN</div><div style="font-size:12px;font-weight:600;color:${t.p>=c.proteinGoal?'#30D158':'var(--g)'};">${t.p}g / ${c.proteinGoal}g</div>`;
+  mac.appendChild(ptRow);
+  const pt=div('bar');pt.style.height='4px';const pf=div('bar-f');pf.style.cssText=`width:${Math.min(100,(t.p/c.proteinGoal)*100)}%;background:#30D158;height:4px;`;pt.appendChild(pf);mac.appendChild(pt);
+  s.appendChild(mac);
+
+  // Water
+  const wc=div('card');
+  const wlive={v:DAY.water};
+  const whead=div('');whead.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;';
+  const wval=mk('div','','');wval.style.cssText='font-size:13px;font-weight:600;color:#5AC8FA;';wval.textContent=(DAY.water/1000).toFixed(1)+'L / '+(c.waterGoal/1000)+'L';
+  whead.innerHTML='';whead.appendChild(mk('div','cap','WASSER'));whead.appendChild(wval);wc.appendChild(whead);
+  const wtrack=div('bar');wtrack.style.height='4px';const wfill=div('bar-f');wfill.style.cssText=`width:${Math.min(100,(DAY.water/c.waterGoal)*100)}%;background:#5AC8FA;height:4px;`;wtrack.appendChild(wfill);wc.appendChild(wtrack);
+  const wbtns=div('');wbtns.style.cssText='display:flex;gap:6px;margin-top:11px;';
+  [150,250,500,750].forEach(ml=>{
+    const b=btnEl('btn btn-sm tap','+'+ml,()=>{DAY.water=Math.min(DAY.water+ml,5000);saveDay();wfill.style.width=Math.min(100,(DAY.water/c.waterGoal)*100)+'%';wval.textContent=(DAY.water/1000).toFixed(1)+'L / '+(c.waterGoal/1000)+'L';updateSB();});
+    b.style.cssText='background:rgba(90,200,250,.1);border:1px solid rgba(90,200,250,.22);color:#5AC8FA;';wbtns.appendChild(b);
+  });
+  wc.appendChild(wbtns);s.appendChild(wc);
+
+  // Foods
+  s.appendChild(mk('div','cap','MAHLZEITEN'));
+  const mlogEl=div('');mlogEl.id='vit_mlog';
+  function refreshMeals(){
+    mlogEl.innerHTML='';
+    c.foods.forEach(f=>{
+      const row=div('row tap');row.style.cursor='pointer';
+      row.innerHTML=`<span style="font-size:22px;">${f.ic}</span><div style="flex:1;"><div style="font-size:14px;font-weight:500;">${f.n}</div><div class="sub" style="font-size:11px;margin-top:1px;">${f.kcal} kcal · ${f.p}g P</div></div><div style="font-size:20px;color:var(--gd);font-weight:300;">+</div>`;
+      row.onclick=()=>{DAY.meals.push({...f,id:Date.now()});saveDay();refreshMeals();updateSB();};mlogEl.appendChild(row);
+    });
+    if(DAY.meals.length){
+      const mc=div('card');mc.innerHTML='<div class="cap" style="font-size:9px;margin-bottom:10px;">HEUTE GEGESSEN</div>';
+      DAY.meals.forEach((m,i)=>{
+        const r=div('');r.style.cssText=`display:flex;align-items:center;gap:10px;padding:8px 0;${i>0?'border-top:1px solid var(--br)':''}`;
+        r.innerHTML=`<span style="font-size:20px;">${m.ic}</span><div style="flex:1;"><div style="font-size:14px;">${m.n}</div><div class="sub" style="font-size:11px;">${m.p}g P · ${m.kcal} kcal</div></div>`;
+        const del=mk('button','tap','×');del.style.cssText='background:none;border:none;color:var(--td);font-size:20px;cursor:pointer;padding:0 4px;';del.onclick=()=>{DAY.meals=DAY.meals.filter(x=>x.id!==m.id);saveDay();refreshMeals();updateSB();};r.appendChild(del);mc.appendChild(r);
+      });
+      mlogEl.appendChild(mc);
+    }
+  }
+  refreshMeals();s.appendChild(mlogEl);
+
+  // Sleep
+  s.appendChild(mk('div','cap','SCHLAF'));
+  const scon=div('');scon.id='scon_v';s.appendChild(scon);
+  buildSleepWidget(scon,'scon_v');
+
+  // Supps
+  s.appendChild(mk('div','cap','SUPPLEMENTS'));
+  const now=new Date();const nm=now.getHours()*60+now.getMinutes();
+  c.supps.filter(x=>x.on).forEach(sup=>{
+    const done=!!DAY.supps[sup.id];
+    const[sh2,sm2]=sup.t.split(':').map(Number);const isNow=Math.abs(sh2*60+sm2-nm)<45;
+    const row=div('row');row.style.cssText+=`background:${done?'rgba(48,209,88,.04)':isNow?'rgba(201,168,76,.04)':'var(--s1)'};border-color:${done?'rgba(48,209,88,.15)':isNow?'rgba(201,168,76,.2)':'var(--br)'};`;
+    const nl=mk('div','','');nl.style.cssText=`font-size:14px;font-weight:500;color:${done?'#30D158':'var(--t)'};`;nl.textContent=sup.n+' ';const dl=mk('span','',sup.d);dl.style.cssText='font-size:12px;color:var(--tm);';nl.appendChild(dl);
+    const tl=mk('div','','');tl.style.cssText='font-size:11px;color:var(--td);margin-top:1px;';tl.textContent=sup.t;if(isNow&&!done){const nt=mk('span','','← JETZT');nt.style.cssText='color:var(--g);font-weight:600;margin-left:6px;';tl.appendChild(nt);}
+    row.innerHTML=`<span style="font-size:22px;">${sup.ic}</span>`;const info=div('');info.style.flex='1';info.appendChild(nl);info.appendChild(tl);row.appendChild(info);
+    if(done)row.innerHTML+=`<span style="color:#30D158;font-size:18px;">✓</span>`;
+    else{const cb=mk('button','tap','✓');cb.style.cssText='width:34px;height:34px;border-radius:9px;background:var(--s2);border:1px solid var(--br);color:var(--tm);font-size:16px;font-weight:700;';cb.onclick=()=>{DAY.supps[sup.id]=true;saveDay();row.style.background='rgba(48,209,88,.04)';row.style.borderColor='rgba(48,209,88,.15)';nl.style.color='#30D158';cb.replaceWith(mk('span','','✓').then?.(x=>x)||(()=>{const sp=mk('span','','✓');sp.style.cssText='color:#30D158;font-size:18px;';return sp;})());updateSB();};row.appendChild(cb);}
+    s.appendChild(row);
+  });
+  const sedit=btnEl('btn btn-sec btn-sm tap','⚙  Supplements & Ziele anpassen',openVitalsEditor,'margin-top:4px;');s.appendChild(sedit);
+
+  // Recovery
+  s.appendChild(mk('div','cap','RECOVERY'));
+  c.recovery.filter(x=>x.on).forEach(m=>{
+    const done=DAY.recovery.includes(m.id);
+    const row=div('row tap');row.style.cssText=`background:${done?m.c+'06':'var(--s1)'};border-color:${done?m.c+'22':'var(--br)'};opacity:${done?.55:1};`;
+    row.innerHTML=`<span style="font-size:22px;">${m.ic}</span><div style="flex:1;"><div style="font-size:14px;font-weight:500;color:${done?m.c:'var(--t)'};">${m.n}</div><div class="sub" style="font-size:11px;margin-top:1px;">${m.t}</div></div>${done?`<span style="color:${m.c};font-size:16px;">✓</span>`:''}`;
+    row.onclick=()=>{
+      if(DAY.recovery.includes(m.id))DAY.recovery=DAY.recovery.filter(x=>x!==m.id);
+      else DAY.recovery.push(m.id);
+      saveDay();updateSB();
+      // Update just this row without full re-render
+      const nowDone=DAY.recovery.includes(m.id);
+      row.style.background=nowDone?m.c+'06':'var(--s1)';row.style.borderColor=nowDone?m.c+'22':'var(--br)';row.style.opacity=nowDone?.55:1;
+      row.querySelector('div div').style.color=nowDone?m.c:'var(--t)';
+      const ck=row.querySelector('span:last-child');if(ck&&ck.textContent==='✓')ck.remove();else if(nowDone){const ns=mk('span','','✓');ns.style.cssText=`color:${m.c};font-size:16px;`;row.appendChild(ns);}
+    };
+    s.appendChild(row);
+  });
+  aiBtnEl('Ernährung optimieren',()=>{const t2=totals();const c2=getCfg();return`Gegessen: ${DAY.meals.map(m=>m.n).join(', ')||'nichts'}. Protein: ${t2.p}g/${c2.proteinGoal}g. Was als nächstes essen? 3 Vorschläge. Kein Intro. Deutsch.`;},s);
+};
+
+RENDER.intel=s=>{
+  s.innerHTML=`<div style="font-size:24px;font-weight:700;letter-spacing:-.3px;">Intel</div>`;
+  const seg=div('seg');seg.style.marginTop='4px';
+  const panels={'Wissen':null,'Body Fix':null,'KI-Doc':null};
+  ['Wissen','Body Fix','KI-Doc'].forEach((t,i)=>{
+    const p=div('');p.style.cssText='flex-direction:column;gap:10px;padding-top:8px;'+(i===0?'display:flex':'display:none');
+    panels[t]=p;
+    const b=mk('button','seg-b'+(i===0?' on':''),t);b.onclick=()=>{seg.querySelectorAll('.seg-b').forEach(x=>x.classList.remove('on'));b.classList.add('on');Object.values(panels).forEach(x=>x.style.display='none');p.style.display='flex';};
+    seg.appendChild(b);
+  });
+  s.appendChild(seg);
+
+  // WISSEN
+  const INTEL_DATA=[
+    {ic:'🧬',l:'Kortisol',c:'#FF453A',items:[{h:'Sofort',c:'#FF453A',tips:['Koffein erst 90 Min nach Aufwachen','Box Breathing 4-4-4-4 täglich 5 Min','20 Min Natur-Spaziergang = –21% Kortisol','Magnesium 400mg abends']},{h:'Supplements',c:'#BF5AF2',tips:['Ashwagandha KSM-66 300–600mg abends','Omega-3 3–4g täglich','Rhodiola Rosea 200mg morgens']},{h:'Strategie',c:'#FF9F0A',tips:['Pomodoro 25/5 Rhythmus','Aufgaben abends notieren','Feste Arbeitsendezeit täglich']}]},
+    {ic:'🌙',l:'Schlaf & Luzid',c:'#BF5AF2',items:[{h:'Schlaf optimieren',c:'#BF5AF2',tips:['7–9h vor Mitternacht schlafen','18°C Zimmer, totale Dunkelheit','Kein Essen 2h vor Schlafen','Magnesium 300mg abends']},{h:'Luzides Träumen',c:'#0A84FF',tips:['MILD: Intention vor dem Einschlafen setzen','WBTB: Nach 5–6h aufwachen + wieder schlafen','Reality Checks 10–15x täglich','Traumtagebuch sofort schreiben']},{h:'Supplements',c:'#5AC8FA',tips:['Galantamin 4–8mg bei WBTB (max 2x/Wo!)','Alpha-GPC 300mg bei WBTB','Vitamin B6 100mg abends']}]},
+    {ic:'🫁',l:'VO2max',c:'#FF453A',items:[{h:'Protokolle',c:'#FF453A',tips:['Norwegisches 4x4: 4 Min @ 90–95% max HR, 4 Runden','Zone 2: 3–4x/Woche @ Puls 120–150','HIIT Sprints: 8x30 Sek, 90 Sek Pause']},{h:'Ernährung & Supps',c:'#30D158',tips:['Rote-Bete-Saft 500ml 2h vor Training','Eisenreiche Ernährung + Vitamin C']}]},
+    {ic:'💊',l:'Supplements',c:'#0A84FF',items:[{h:'Basis',c:'#C9A84C',tips:['Vitamin D 5000 IE + K2 100mcg','Omega-3 2–4g EPA+DHA','Magnesium Glycinat 300–400mg','Kreatin 5g täglich']},{h:'Performance',c:'#30D158',tips:['Zink 15–25mg abends','Kollagen 15g + Vit C nach Training']},{h:'Mental & Longevity',c:'#BF5AF2',tips:["Lion's Mane 500mg täglich",'L-Theanin 200mg + Koffein 100mg','NMN/NR 250mg morgens nüchtern']}]},
+    {ic:'🦴',l:'Gelenke & Körper',c:'#5AC8FA',items:[{h:'Selbst-Massage',c:'#5AC8FA',tips:['Lacrosse Ball: Schulterblatt, Gesäß, Fußsohle – 60 Sek','Psoas-Release täglich (70% aller Rückenschmerzen)','Foam Rolling: 60 Sek pro Gruppe']},{h:'Gelenke heilen',c:'#30D158',tips:['Kollagen + Vit C 30 Min VOR Training','Omega-3: natürliches Ibuprofen','Kurkuma + schwarzer Pfeffer 500mg']},{h:'Rücken',c:'#FF9F0A',tips:['Cat-Cow morgens 10 Wdh.','McGill Big 3 täglich','Dead Hangs 3x60 Sek']}]},
+    {ic:'🌅',l:'Morgenroutine',c:'#C9A84C',items:[{h:'Die ersten 60 Min',c:'#C9A84C',tips:['Kein Snooze – sofort aufstehen','500ml Wasser direkt','10 Min Morgenlicht (kein Glas)','Kaltdusche 2–3 Min','Koffein erst nach 90 Min']},{h:'Niemals morgens',c:'#FF453A',tips:['❌ Social Media erste Stunde','❌ E-Mails sofort','❌ News / YouTube','❌ Zuckerfrühstück']}]},
+    {ic:'🌿',l:'Longevity',c:'#30D158',items:[{h:'Tägliche Basics',c:'#30D158',tips:['Morgenlicht 10 Min direkt nach Aufwachen','Zone 2 Cardio 3–4x/Woche','Sauna 4x/Woche: –50% Herzerkrankungen']},{h:'Tracking',c:'#C9A84C',tips:['Blutbild jährlich: Testosteron, Vit D, Ferritin, CRP','HRV täglich – stärkste Gesundheitsmetrik']}]},
+    {ic:'📏',l:'Height Maxxing',c:'#0A84FF',items:[{h:'Training',c:'#30D158',tips:['Sprinting: GH +700% – stärkster Stimulus','Dead Hangs täglich 3x60 Sek','Schwimmen 2–3x/Woche']},{h:'Supplements',c:'#0A84FF',tips:['Vit D 5000 IE + Zink 15mg','L-Arginin 2–3g nüchtern','GABA 3–5g vor Schlafen: GH +400%']},{h:'Haltung (sofort)',c:'#5AC8FA',tips:['Aufrecht = sofort 2–5cm mehr sichtbar','Hüftbeuger täglich dehnen – 60 Sek/Seite']}]},
+    {ic:'🧠',l:'Mental Performance',c:'#0A84FF',items:[{h:'Deep Work & Fokus',c:'#0A84FF',tips:['2–4h nach Aufwachen schärfstes kognitives Fenster','Pomodoro 25/5','Handy in anderen Raum = IQ +10 Punkte (Studie)']},{h:'Supplements',c:'#C9A84C',tips:["Lion's Mane 500–1000mg täglich",'L-Theanin 200mg + Koffein 100mg','DHA täglich – Gehirnfettsäuren']}]},
+  ];
+  const grid=div('');grid.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:9px;';
+  INTEL_DATA.forEach(sec=>{
+    const c2=div('');c2.style.cssText=`padding:15px 13px;background:var(--s1);border:1px solid ${sec.c}20;border-radius:var(--r);cursor:pointer;transition:all .15s;`;
+    c2.innerHTML=`<div style="font-size:26px;margin-bottom:9px;">${sec.ic}</div><div style="font-size:14px;font-weight:600;margin-bottom:3px;">${sec.l}</div><div style="height:2px;background:linear-gradient(90deg,${sec.c}60,transparent);border-radius:99px;margin-top:10px;"></div>`;
+    c2.addEventListener('click',()=>openIntelDetail(sec));c2.addEventListener('touchstart',()=>c2.style.transform='scale(.97)',{passive:true});c2.addEventListener('touchend',()=>c2.style.transform='',{passive:true});
+    grid.appendChild(c2);
+  });
+  panels['Wissen'].appendChild(grid);
+
+  // BODY FIX
+  const bf=panels['Body Fix'];
+  const BFQUICK=[{ic:'🦶',t:'Plattfuß – Fußgewölbe kollabiert'},{ic:'🧍',t:'Rundrücken – schlechte Haltung'},{ic:'🦵',t:'Knieschmerzen beim Treppensteigen'},{ic:'💆',t:'Chronische Nackenverspannungen'},{ic:'🔩',t:'Unterer Rückenschmerz / LWS'},{ic:'🦴',t:'Schulterblatt-Schmerzen'},{ic:'🤸',t:'Eingeschränkte Hüftmobilität'},{ic:'👣',t:'Achillessehnen-Schmerzen'},{ic:'🖐',t:'Karpaltunnel / Handgelenk'},{ic:'🦷',t:'Kieferverspannung / Zähneknirschen'}];
+  const bfhdr=div('card-hi');bfhdr.innerHTML=`<div class="cap" style="font-size:9px;margin-bottom:7px;">🔧 BODY FIX</div><div style="font-size:16px;font-weight:700;margin-bottom:4px;">Beschreibe dein Problem</div><div class="sub">Ich erstelle deinen persönlichen Korrekturplan mit konkreten Übungen.</div>`;bf.appendChild(bfhdr);
+  const bfirow=div('');bfirow.style.cssText='display:flex;gap:8px;';
+  const bfinp=mk('textarea','');bfinp.rows=2;bfinp.placeholder="z.B. 'Plattfuß und schlechte Haltung' oder 'Knieschmerzen links'";bfinp.style.flex='1';
+  bfinp.oninput=function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,90)+'px';};
+  const bfsend=div('btn-icon tap','→');bfsend.style.cssText='background:linear-gradient(135deg,var(--gd),var(--g));color:#040404;font-size:20px;font-weight:700;align-self:flex-end;display:flex;align-items:center;justify-content:center;cursor:pointer;';
+  const bfres=div('ai-box');bfres.style.marginTop='0';
+  const bfsolve=async q=>{
+    if(!q.trim())return;bfsend.textContent='...';bfsend.style.opacity='.5';bfres.style.display='block';
+    bfres.innerHTML='<span class="spin">⚙</span>  Heilungsplan wird erstellt...';
+    try{const txt=await callAI(`Problem: "${q}"\n\nErstelle Heilungsplan:\n\n**URSACHE** (anatomisch, 2 Sätze)\n**SOFORT-MASSNAHMEN** (heute noch)\n**ÜBUNGSPROGRAMM**\nPhase 1 – Wo 1–2: Mobilisierung\nPhase 2 – Wo 3–6: Kräftigung\nPhase 3 – Wo 7+: Stabilisierung\n(Konkret mit Übungen, Reps, Häufigkeit)\n**HILFSMITTEL** (falls sinnvoll)\n**ZEITRAHMEN**\n**VERMEIDEN**\n\nDeutsch, direkt, kein Intro.`,'Du bist Experte für Physiotherapie und Corrective Exercise. Nur natürliche Methoden.',1000);
+      bfres.innerHTML=`<div style="padding:8px 10px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.18);border-radius:9px;margin-bottom:10px;font-size:12px;color:var(--gd);">🔧 ${q}</div>`+txt.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--t)">$1</strong>').replace(/\n/g,'<br/>');
+    }catch{bfres.innerHTML='Verbindungsfehler.';}
+    bfsend.textContent='→';bfsend.style.opacity='1';
+  };
+  bfsend.onclick=()=>bfsolve(bfinp.value);bfinp.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();bfsolve(bfinp.value);}};
+  bfirow.appendChild(bfinp);bfirow.appendChild(bfsend);bf.appendChild(bfirow);bf.appendChild(bfres);
+  const bfqlbl=mk('div','cap','HÄUFIGE PROBLEME');bfqlbl.style.cssText='font-size:9px;margin-top:4px;margin-bottom:8px;';bf.appendChild(bfqlbl);
+  BFQUICK.forEach(q2=>{const r=div('row tap');r.innerHTML=`<span style="font-size:20px;">${q2.ic}</span><span style="flex:1;font-size:14px;color:var(--tm);">${q2.t}</span><span style="color:var(--td);font-size:16px;">→</span>`;r.onclick=()=>{bfinp.value=q2.t;bfsolve(q2.t);};bf.appendChild(r);});
+  bf.appendChild(mk('div','sub','Body Fix ersetzt keinen Arzt · Bei akuten Schmerzen Arzt aufsuchen'));
+
+  // KI-DOC
+  const kd=panels['KI-Doc'];
+  const kdhdr=div('card');kdhdr.style.cssText='background:rgba(255,69,58,.05);border-color:rgba(255,69,58,.18);';kdhdr.innerHTML=`<div class="cap" style="color:#FF453A;font-size:9px;margin-bottom:7px;">🩺 KI-DOC</div><div style="font-size:16px;font-weight:700;margin-bottom:4px;">Was beschäftigt dich?</div><div class="sub">Frag bei Symptomen, Supplements oder Unwohlsein.</div>`;kd.appendChild(kdhdr);
+  const kdQQ=[{ic:'😴',t:'Ich bin den ganzen Tag müde – warum?'},{ic:'💊',t:'Welche Supplements vertragen sich nicht?'},{ic:'🧠',t:'Ich kann mich schlecht konzentrieren'},{ic:'💪',t:'Ich erhole mich nicht gut vom Training'},{ic:'🤢',t:'Mir ist morgens oft schlecht'}];
+  kdQQ.forEach(q2=>{const r=div('row tap');r.innerHTML=`<span style="font-size:20px;">${q2.ic}</span><span style="flex:1;font-size:14px;color:var(--tm);">${q2.t}</span>`;r.onclick=()=>kdSend(q2.t);kd.appendChild(r);});
+  const kdchat=div('');kdchat.style.cssText='display:flex;flex-direction:column;gap:10px;';kd.appendChild(kdchat);
+  const kdrow=div('');kdrow.style.cssText='display:flex;gap:8px;border-top:1px solid var(--br);padding-top:12px;margin-top:4px;';
+  const kdinp=mk('textarea','');kdinp.rows=2;kdinp.placeholder='Beschreibe dein Symptom...';kdinp.style.flex='1';kdinp.oninput=function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px';};
+  const kdsend=div('btn-icon tap','→');kdsend.style.cssText='background:linear-gradient(135deg,#B91C1C,#EF4444);color:#fff;font-size:20px;font-weight:700;align-self:flex-end;display:flex;align-items:center;justify-content:center;cursor:pointer;';
+  async function kdSend(q){
+    const txt=q||kdinp.value.trim();if(!txt)return;kdinp.value='';
+    const um=div('');um.style.cssText='align-self:flex-end;max-width:84%;padding:11px 14px;background:linear-gradient(135deg,#0A84FF,#0055CC);border-radius:16px 16px 5px 16px;font-size:14px;color:#fff;line-height:1.5;';um.textContent=txt;kdchat.appendChild(um);
+    const lm=div('');lm.style.cssText='display:flex;gap:9px;';const icon=div('',`<div style="width:32px;height:32px;border-radius:10px;background:rgba(255,69,58,.15);border:1px solid rgba(255,69,58,.3);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">🩺</div>`);
+    const lb=div('');lb.style.cssText='max-width:84%;padding:11px 14px;background:var(--s2);border:1px solid var(--br);border-radius:16px 16px 16px 5px;font-size:14px;color:var(--tm);line-height:1.75;';lb.innerHTML='<span style="opacity:.5">...</span>';
+    lm.appendChild(icon);lm.appendChild(lb);kdchat.appendChild(lm);kdchat.scrollTop=kdchat.scrollHeight;
+    try{const ctx=`Nutzer: ${P?.name||'?'}, Ziel: ${P?.goalNames||'?'}. Energie: ${DAY.energy||'?'}/5. Supplements: ${Object.keys(DAY.supps).map(id=>getCfg().supps.find(s=>s.id===id)?.n||id).join(', ')||'keine'}.`;
+      const res=await callAI(`${ctx}\nFrage: ${txt}`,'Du bist KI-Doc – kein Arzt. Hilf bei möglichen Ursachen bezüglich Supplements, Ernährung, Schlaf, Training. Bei ernsthaften Symptomen empfehle Arzt. 2–3 Ursachen + Lösungen. Direkt, Deutsch.',600);
+      lb.innerHTML=res.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br/>');
+    }catch{lb.textContent='Verbindungsfehler.';}
+    kdchat.scrollTop=kdchat.scrollHeight;
+  }
+  kdsend.onclick=()=>kdSend();kdinp.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();kdSend();}};
+  kdrow.appendChild(kdinp);kdrow.appendChild(kdsend);kd.appendChild(kdrow);
+  kd.appendChild(mk('div','sub','KI-Doc ersetzt keinen Arzt · Notfall: 112'));
+
+  Object.values(panels).forEach(p=>s.appendChild(p));
+};
+
+function openIntelDetail(sec){
+  openOv(c=>{
+    c.innerHTML=`<div class="cap" style="color:${sec.c};font-size:9px;margin-bottom:7px;">${sec.ic} ${sec.l.toUpperCase()}</div><div style="font-size:22px;font-weight:700;margin-bottom:18px;">${sec.l}</div>`;
+    sec.items.forEach(item=>{
+      const card=div('card');card.style.cssText+=`;border-color:${item.c}20;margin-bottom:10px;`;
+      card.innerHTML=`<div class="cap" style="color:${item.c};font-size:9px;margin-bottom:11px;">${item.h.toUpperCase()}</div>`;
+      item.tips.forEach((tip,j)=>{
+        const r=div('');r.style.cssText=`display:flex;gap:10px;padding:7px 0;${j>0?'border-top:1px solid var(--br)':''}`;
+        r.innerHTML=`<div class="dot" style="background:${item.c};margin-top:5px;flex-shrink:0;"></div><div style="font-size:13px;color:var(--tm);line-height:1.6;">${tip}</div>`;card.appendChild(r);
+      });c.appendChild(card);
+    });
+    c.appendChild(btnEl('btn btn-sec tap','Schließen',closeOv));
+  });
+}
+
+RENDER.ich=s=>{
+  s.innerHTML=`<div style="font-size:24px;font-weight:700;letter-spacing:-.3px;">Ich</div>`;
+  const seg=div('seg');seg.style.marginTop='4px';
+  const panels={};
+  ['Ziele','Werte','Gewohnheiten'].forEach((t,i)=>{
+    const p=div('');p.style.cssText='flex-direction:column;gap:8px;padding-top:8px;'+(i===0?'display:flex':'display:none');
+    panels[t]=p;
+    const b=mk('button','seg-b'+(i===0?' on':''),t);b.onclick=()=>{seg.querySelectorAll('.seg-b').forEach(x=>x.classList.remove('on'));b.classList.add('on');Object.values(panels).forEach(x=>x.style.display='none');p.style.display='flex';};
+    seg.appendChild(b);
+  });
+  s.appendChild(seg);
+
+  // ZIELE
+  const getZ=()=>ls('los_z')||[];
+  const setZ=v=>{ls('los_z',v);buildZ();};
+  function buildZ(){
+    const p=panels['Ziele'];p.innerHTML='';
+    const CATS=[{k:'kurz',l:'KURZFRISTIG',c:'#5AC8FA'},{k:'mittel',l:'MITTELFRISTIG',c:'#30D158'},{k:'lang',l:'LANGFRISTIG',c:'#C9A84C'}];
+    CATS.forEach(cat=>{
+      const lbl=mk('div','cap',cat.l);lbl.style.cssText=`font-size:9px;color:${cat.c};margin-top:4px;margin-bottom:6px;`;p.appendChild(lbl);
+      const catZ=getZ().filter(z=>z.cat===cat.k);
+      if(!catZ.length){const e=mk('div','sub','Noch keine Ziele');e.style.paddingBottom='4px';p.appendChild(e);}
+      catZ.forEach(z=>{
+        const r=div('');r.style.cssText=`display:flex;gap:10px;align-items:flex-start;padding:13px 14px;background:var(--s1);border:1px solid ${cat.c}18;border-radius:var(--r);margin-bottom:4px;`;
+        const cb=mk('button','tap','');cb.style.cssText=`width:22px;height:22px;border-radius:7px;border:1.5px solid ${z.done?'#30D158':cat.c};background:${z.done?'rgba(48,209,88,.2)':'transparent'};color:#30D158;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;`;cb.textContent=z.done?'✓':'';
+        cb.onclick=()=>setZ(getZ().map(x=>x.id===z.id?{...x,done:!x.done}:x));
+        const info=div('');info.style.flex='1';info.innerHTML=`<div style="font-size:15px;font-weight:500;color:${z.done?'var(--td)':'var(--t)'};text-decoration:${z.done?'line-through':'none'};line-height:1.4;">${z.text}</div>${z.why?`<div class="sub" style="font-size:12px;margin-top:4px;font-style:italic;">"${z.why}"</div>`:''}`;
+        const del=mk('button','tap','×');del.style.cssText='background:none;border:none;color:var(--td);font-size:20px;cursor:pointer;';del.onclick=()=>setZ(getZ().filter(x=>x.id!==z.id));
+        r.appendChild(cb);r.appendChild(info);r.appendChild(del);p.appendChild(r);
+      });
+    });
+    const ab=btnEl('btn btn-sec btn-sm tap','+ Ziel hinzufügen',()=>openOv(c=>{
+      c.innerHTML=`<div style="font-size:20px;font-weight:700;margin-bottom:18px;">Neues Ziel</div>`;
+      let f={text:'',why:'',cat:'lang'};
+      const ti=mk('input','');ti.placeholder='Dein Ziel...';ti.style.cssText='font-size:16px;font-weight:600;margin-bottom:9px;';ti.oninput=e=>f.text=e.target.value;c.appendChild(ti);
+      const wi=mk('input','');wi.placeholder='Warum ist das wichtig? (optional)';wi.style.marginBottom='14px';wi.oninput=e=>f.why=e.target.value;c.appendChild(wi);
+      const cr=div('');cr.style.cssText='display:flex;gap:6px;margin-bottom:18px;';
+      const CATS2=[{k:'kurz',l:'Kurzfristig',c:'#5AC8FA'},{k:'mittel',l:'Mittelfristig',c:'#30D158'},{k:'lang',l:'Langfristig',c:'#C9A84C'}];
+      CATS2.forEach(cat=>{
+        const b=btnEl('btn btn-sm tap',cat.l,()=>{f.cat=cat.k;cr.querySelectorAll('button').forEach((x,i)=>{x.style.background=CATS2[i].k===cat.k?CATS2[i].c+'18':'var(--s2)';x.style.borderColor=CATS2[i].k===cat.k?CATS2[i].c+'45':'var(--br)';x.style.color=CATS2[i].k===cat.k?CATS2[i].c:'var(--tm)';});});
+        b.style.cssText=`background:${f.cat===cat.k?cat.c+'18':'var(--s2)'};border:1px solid ${f.cat===cat.k?cat.c+'45':'var(--br)'};color:${f.cat===cat.k?cat.c:'var(--tm)'};`;
+        cr.appendChild(b);
+      });
+      c.appendChild(cr);
+      const sv=btnEl('btn btn-gold tap','Speichern',()=>{if(!f.text.trim())return;setZ([...getZ(),{id:Date.now(),text:f.text.trim(),why:f.why.trim(),cat:f.cat,done:false}]);closeOv();});c.appendChild(sv);
+    }),'margin-top:4px;');
+    p.appendChild(ab);
+  }
+  buildZ();
+
+  // WERTE
+  const getW=()=>ls('los_w')||[];
+  const setW=v=>{ls('los_w',v);buildW();};
+  function buildW(){
+    const p=panels['Werte'];p.innerHTML='';
+    p.appendChild(mk('div','sub','Deine Werte sind der Kompass deines Lebens.'));
+    getW().forEach(w=>{
+      const r=div('');r.style.cssText='display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--s1);border:1px solid rgba(201,168,76,.18);border-radius:var(--r);margin-bottom:4px;';
+      r.innerHTML=`<div class="dot" style="background:var(--g);"></div><div style="flex:1;font-size:15px;font-weight:600;color:var(--g);">${w.text}</div>`;
+      const del=mk('button','tap','×');del.style.cssText='background:none;border:none;color:var(--td);font-size:20px;cursor:pointer;';del.onclick=()=>setW(getW().filter(x=>x.id!==w.id));r.appendChild(del);p.appendChild(r);
+    });
+    const EW=['Disziplin','Ehrlichkeit','Wachstum','Gesundheit','Familie','Freiheit','Exzellenz','Mut','Loyalität','Selbstbeherrschung'];
+    const pw=div('');pw.style.cssText='display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;';
+    EW.filter(e=>!getW().find(w=>w.text===e)).forEach(e=>{const b=mk('button','tag tap','+ '+e);b.style.cssText='background:var(--s2);border:1px solid var(--br);color:var(--tm);cursor:pointer;font-size:12px;';b.onclick=()=>setW([...getW(),{id:Date.now(),text:e}]);pw.appendChild(b);});
+    p.appendChild(pw);
+    const row=div('');row.style.cssText='display:flex;gap:8px;';const winp=mk('input','');winp.placeholder='Eigener Wert...';winp.style.flex='1';
+    const wadd=div('btn-icon tap','+');wadd.style.cssText='background:var(--gdd);color:var(--g);font-size:22px;border:1px solid var(--brg);display:flex;align-items:center;justify-content:center;cursor:pointer;';
+    wadd.onclick=()=>{const v=winp.value.trim();if(v){setW([...getW(),{id:Date.now(),text:v}]);winp.value='';}};winp.onkeydown=e=>{if(e.key==='Enter')wadd.onclick();};
+    row.appendChild(winp);row.appendChild(wadd);p.appendChild(row);
+  }
+  buildW();
+
+  // GEWOHNHEITEN
+  const getG=()=>ls('los_gew')||[];
+  const setG=v=>{ls('los_gew',v);buildG();};
+  function buildG(){
+    const p=panels['Gewohnheiten'];p.innerHTML='';
+    const doing=getG().filter(g=>g.s==='do'),want=getG().filter(g=>g.s==='want');
+    if(doing.length){
+      p.appendChild(mk('div','cap','✓ Ich tue bereits'));
+      doing.forEach(g=>{
+        const r=div('');r.style.cssText='display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(48,209,88,.05);border:1px solid rgba(48,209,88,.15);border-radius:var(--r);margin-bottom:4px;';
+        r.innerHTML=`<div class="dot" style="background:#30D158;"></div><div style="flex:1;font-size:14px;">${g.text}</div>`;
+        const del=mk('button','tap','×');del.style.cssText='background:none;border:none;color:var(--td);font-size:20px;cursor:pointer;';del.onclick=()=>setG(getG().filter(x=>x.id!==g.id));r.appendChild(del);p.appendChild(r);
+      });
+    }
+    if(want.length){
+      p.appendChild(mk('div','cap','◇ Ich will werden'));
+      want.forEach(g=>{
+        const r=div('');r.style.cssText='display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(201,168,76,.05);border:1px solid rgba(201,168,76,.12);border-radius:var(--r);margin-bottom:4px;';
+        r.innerHTML=`<div class="dot" style="background:var(--gd);"></div><div style="flex:1;font-size:14px;">${g.text}</div>`;
+        const mb=btnEl('btn btn-sm tap','✓ Tue es',()=>setG(getG().map(x=>x.id===g.id?{...x,s:'do'}:x)));mb.style.cssText='background:rgba(48,209,88,.12);border:1px solid rgba(48,209,88,.25);color:#30D158;';
+        const del=mk('button','tap','×');del.style.cssText='background:none;border:none;color:var(--td);font-size:20px;cursor:pointer;';del.onclick=()=>setG(getG().filter(x=>x.id!==g.id));
+        r.appendChild(mb);r.appendChild(del);p.appendChild(r);
+      });
+    }
+    if(!doing.length&&!want.length)p.appendChild(mk('div','sub','Noch keine Gewohnheiten eingetragen.'));
+    const EG=['Täglich meditieren','Kein Social Media morgens','8h Schlafen','Täglich lesen','Kalt duschen','Journaling abends','Täglich trainieren','Kein Alkohol'];
+    const pg=div('');pg.style.cssText='display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;';
+    EG.filter(e=>!getG().find(g=>g.text===e)).forEach(e=>{const b=mk('button','tag tap','+ '+e);b.style.cssText='background:var(--s2);border:1px solid var(--br);color:var(--tm);cursor:pointer;font-size:12px;';b.onclick=()=>setG([...getG(),{id:Date.now(),text:e,s:'want'}]);pg.appendChild(b);});
+    p.appendChild(pg);
+    const row=div('');row.style.cssText='display:flex;gap:8px;';const ginp=mk('input','');ginp.placeholder='Eigene Gewohnheit...';ginp.style.flex='1';
+    const gadd=div('btn-icon tap','+');gadd.style.cssText='background:var(--gdd);color:var(--g);font-size:22px;border:1px solid var(--brg);display:flex;align-items:center;justify-content:center;cursor:pointer;';
+    gadd.onclick=()=>{const v=ginp.value.trim();if(v){setG([...getG(),{id:Date.now(),text:v,s:'want'}]);ginp.value='';}};ginp.onkeydown=e=>{if(e.key==='Enter')gadd.onclick();};
+    row.appendChild(ginp);row.appendChild(gadd);p.appendChild(row);
+  }
+  buildG();
+
+  Object.values(panels).forEach(p=>s.appendChild(p));
+};
+
+RENDER.wachstum=s=>{
+  s.innerHTML=`<div style="font-size:24px;font-weight:700;letter-spacing:-.3px;">Wachstum</div>`;
+  const seg=div('seg');seg.style.marginTop='4px';
+  const panels={};
+  ['Journal','Lernen'].forEach((t,i)=>{
+    const p=div('');p.style.cssText='flex-direction:column;gap:10px;padding-top:8px;'+(i===0?'display:flex':'display:none');
+    panels[t]=p;
+    const b=mk('button','seg-b'+(i===0?' on':''),t);b.onclick=()=>{seg.querySelectorAll('.seg-b').forEach(x=>x.classList.remove('on'));b.classList.add('on');Object.values(panels).forEach(x=>x.style.display='none');p.style.display='flex';};
+    seg.appendChild(b);
+  });
+  s.appendChild(seg);
+
+  // JOURNAL
+  (()=>{
+    const p=panels['Journal'];
+    const TK='los_j_'+today();
+    let entry=ls(TK)||{d:['','',''],g:'',int:'',free:''};
+    let jt=null;
+    const autosave=()=>{clearTimeout(jt);jt=setTimeout(()=>{ls(TK,entry);const list=ls('los_jlist')||[];const dk=today();const ei=list.findIndex(x=>x.date===dk);const rec={date:dk,lbl:new Date().toLocaleDateString('de-DE',{day:'numeric',month:'short'}),preview:(entry.free||entry.g||'Eintrag').slice(0,50)};if(ei>=0)list[ei]=rec;else list.unshift(rec);ls('los_jlist',list.slice(0,30));},600);};
+
+    const dlbl=mk('div','sub',new Date().toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'}));dlbl.style.fontWeight='500';p.appendChild(dlbl);
+
+    const dc=div('card-hi');dc.innerHTML='<div class="cap" style="font-size:9px;margin-bottom:11px;">DANKBARKEIT · 3 DINGE</div>';
+    entry.d.forEach((d,i)=>{const inp=mk('input','');inp.type='text';inp.value=d;inp.placeholder=`${i+1}. Wofür bin ich heute dankbar...`;inp.style.marginBottom=i<2?'8px':'0';inp.oninput=e=>{entry.d[i]=e.target.value;autosave();};dc.appendChild(inp);});
+    p.appendChild(dc);
+
+    [{key:'g',l:'WAS HABE ICH GELERNT?',ph:'Einsicht, Erkenntnis, neue Fähigkeit...',rows:2},{key:'int',l:'INTENTION FÜR MORGEN',ph:'Was nehme ich mir vor...',rows:1},{key:'free',l:'FREIE GEDANKEN',ph:'Was geht dir durch den Kopf?',rows:3}].forEach(({key,l,ph,rows})=>{
+      const card=div('card');card.innerHTML=`<div class="cap" style="font-size:9px;margin-bottom:8px;">${l}</div>`;
+      const inp=key==='int'?mk('input',''):mk('textarea','');if(key!=='int'){inp.rows=rows;}inp.placeholder=ph;inp.style.marginBottom='0';
+      if(key==='int'){inp.type='text';inp.value=entry[key]||'';}else inp.value=entry[key]||'';
+      inp.oninput=e=>{entry[key]=e.target.value;if(inp.tagName==='TEXTAREA'){inp.style.height='auto';inp.style.height=Math.min(inp.scrollHeight,140)+'px';}autosave();};
+      card.appendChild(inp);p.appendChild(card);
+    });
+
+    // History
+    const hist=(ls('los_jlist')||[]).filter(e=>e.date!==today()).slice(0,5);
+    if(hist.length){
+      p.appendChild(mk('div','cap','FRÜHERE EINTRÄGE'));
+      hist.forEach(e=>{
+        const r=div('row tap');r.innerHTML=`<span style="font-size:20px;">✒</span><div style="flex:1;"><div style="font-size:14px;font-weight:500;">${e.lbl}</div><div class="sub" style="font-size:11px;margin-top:1px;">${e.preview}${e.preview.length>=50?'...':''}</div></div><span style="color:var(--td);font-size:18px;">›</span>`;
+        r.onclick=()=>{
+          const ent=ls('los_j_'+e.date);if(!ent)return;
+          openOv(c=>{
+            c.innerHTML=`<div style="font-size:16px;font-weight:700;margin-bottom:16px;">${new Date(e.date).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>`;
+            const sections=[{k:'d',l:'DANKBARKEIT',render:v=>v?.filter(Boolean).map((x,i)=>`<div style="padding:6px 0;${i>0?'border-top:1px solid var(--br)':''}font-size:14px;">${x}</div>`).join('')||''},{k:'g',l:'GELERNT',render:v=>v?`<div style="font-size:14px;color:var(--tm);line-height:1.7;">${v}</div>`:''},{k:'free',l:'GEDANKEN',render:v=>v?`<div style="font-size:14px;color:var(--tm);line-height:1.7;">${v}</div>`:''}];
+            sections.forEach(({k,l,render})=>{const content=render(ent[k]);if(!content)return;const card=div('card');card.style.marginBottom='10px';card.innerHTML=`<div class="cap" style="font-size:9px;margin-bottom:9px;">${l}</div>${content}`;c.appendChild(card);});
+            c.appendChild(btnEl('btn btn-sec tap','Schließen',closeOv));
+          });
+        };p.appendChild(r);
+      });
+    }
+  })();
+
+  // LERNEN
+  (()=>{
+    const p=panels['Lernen'];
+    const getLK=()=>ls('los_lrn')||{learning:[],mastered:[],review:[]};
+    const setLK=v=>ls('los_lrn',v);
+    function buildL(){
+      p.innerHTML='';const data=getLK();
+      if(!data.learning.length&&!data.mastered.length&&!data.review.length){
+        const empty=div('');empty.style.cssText='text-align:center;padding:28px 20px;';empty.innerHTML=`<div style="font-size:44px;margin-bottom:12px;">◑</div><div style="font-size:18px;font-weight:700;margin-bottom:8px;">Was lernst du?</div><div class="sub">Füge Skills, Sprachen, Wissen oder Fähigkeiten hinzu.</div>`;p.appendChild(empty);
+      }
+      if(data.learning.length){
+        p.appendChild(mk('div','cap','◐ ICH LERNE GERADE'));
+        data.learning.forEach(item=>{
+          const r=div('');r.style.cssText='display:flex;align-items:center;gap:10px;padding:13px 14px;background:rgba(10,132,255,.06);border:1px solid rgba(10,132,255,.18);border-radius:var(--r);margin-bottom:4px;';
+          r.innerHTML=`<div class="dot" style="background:#0A84FF;flex-shrink:0;"></div><div style="flex:1;font-size:14px;">${item.text}${item.added?`<div class="sub" style="font-size:11px;margin-top:2px;">Seit ${item.added}</div>`:''}</div>`;
+          const mb=btnEl('btn btn-sm tap','✓ Kann ich',()=>{const d=getLK();d.mastered=[...d.mastered,{...item,date:new Date().toLocaleDateString('de-DE')}];d.learning=d.learning.filter(x=>x.id!==item.id);setLK(d);buildL();});mb.style.cssText='background:rgba(48,209,88,.12);border:1px solid rgba(48,209,88,.25);color:#30D158;font-size:12px;white-space:nowrap;';
+          const rv=mk('button','tap','↺');rv.style.cssText='width:32px;height:32px;border-radius:9px;border:1px solid rgba(255,159,10,.25);background:rgba(255,159,10,.1);color:#FF9F0A;font-size:15px;';rv.title='Wiederholung nötig';rv.onclick=()=>{const d=getLK();d.review=[...d.review,{...item,due:new Date().toLocaleDateString('de-DE')}];d.learning=d.learning.filter(x=>x.id!==item.id);setLK(d);buildL();};
+          r.appendChild(mb);r.appendChild(rv);p.appendChild(r);
+        });
+      }
+      if(data.review.length){
+        p.appendChild(mk('div','cap','↺ WIEDERHOLUNG NÖTIG'));
+        data.review.forEach(item=>{
+          const r=div('');r.style.cssText='display:flex;align-items:center;gap:10px;padding:13px 14px;background:rgba(255,159,10,.05);border:1px solid rgba(255,159,10,.18);border-radius:var(--r);margin-bottom:4px;';
+          r.innerHTML=`<span style="font-size:18px;">↺</span><div style="flex:1;"><div style="font-size:14px;">${item.text}</div><div class="sub" style="font-size:11px;margin-top:1px;">Seit ${item.due}</div></div>`;
+          const mb=btnEl('btn btn-sm tap','✓',()=>{const d=getLK();d.mastered=[...d.mastered,item];d.review=d.review.filter(x=>x.id!==item.id);setLK(d);buildL();});mb.style.cssText='background:rgba(48,209,88,.12);border:1px solid rgba(48,209,88,.25);color:#30D158;';
+          const bl=btnEl('btn btn-sm tap','Wieder lernen',()=>{const d=getLK();d.learning=[...d.learning,item];d.review=d.review.filter(x=>x.id!==item.id);setLK(d);buildL();});bl.style.cssText='background:rgba(10,132,255,.12);border:1px solid rgba(10,132,255,.25);color:#0A84FF;font-size:12px;';
+          r.appendChild(mb);r.appendChild(bl);p.appendChild(r);
+        });
+      }
+      if(data.mastered.length){
+        const toggle=mk('button','cap tap','✓ KANN ICH BEREITS ('+data.mastered.length+')');toggle.style.cssText='color:#30D158;font-size:9px;background:none;border:none;cursor:pointer;text-align:left;padding:0;';
+        let expanded=false;const mlist=div('');mlist.style.display='none';
+        toggle.onclick=()=>{expanded=!expanded;mlist.style.display=expanded?'flex':'none';mlist.style.flexDirection='column';toggle.textContent=(expanded?'▾ ':'▸ ')+'KANN ICH BEREITS ('+data.mastered.length+')';};
+        p.appendChild(toggle);
+        data.mastered.forEach(item=>{
+          const r=div('');r.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(48,209,88,.04);border:1px solid rgba(48,209,88,.1);border-radius:var(--r);margin-bottom:3px;opacity:.7;';
+          r.innerHTML=`<span style="color:#30D158;font-size:16px;">✓</span><div style="flex:1;font-size:14px;">${item.text}</div>${item.date?`<span class="sub" style="font-size:11px;">${item.date}</span>`:''}`;mlist.appendChild(r);
+        });
+        p.appendChild(mlist);
+      }
+      const addlbl=mk('div','cap','HINZUFÜGEN');addlbl.style.cssText='font-size:9px;margin-top:4px;margin-bottom:8px;';p.appendChild(addlbl);
+      const row=div('');row.style.cssText='display:flex;gap:8px;';const linp=mk('input','');linp.placeholder='Was lernst du? (Sprache, Skill, Wissen...)';linp.style.flex='1';
+      const ladd=div('btn-icon tap','+');ladd.style.cssText='background:rgba(10,132,255,.15);color:#0A84FF;font-size:22px;border:1px solid rgba(10,132,255,.3);display:flex;align-items:center;justify-content:center;cursor:pointer;';
+      ladd.onclick=()=>{const v=linp.value.trim();if(!v)return;const d=getLK();d.learning=[...d.learning,{id:Date.now(),text:v,added:new Date().toLocaleDateString('de-DE')}];setLK(d);linp.value='';buildL();};linp.onkeydown=e=>{if(e.key==='Enter')ladd.onclick();};
+      row.appendChild(linp);row.appendChild(ladd);p.appendChild(row);
+    }
+    buildL();
+  })();
+
+  Object.values(panels).forEach(p=>s.appendChild(p));
+};
+
+// ── EDITORS ───────────────────────────────────────
+function openHabitEditor(){
+  openOv(c=>{
+    c.innerHTML=`<div style="font-size:20px;font-weight:700;margin-bottom:6px;">Habits anpassen</div><div class="sub" style="margin-bottom:18px;">Aktiviere, deaktiviere oder füge eigene hinzu.</div>`;
+    const cfg2=getCfg();
+    cfg2.habits.forEach(h=>{
+      const r=div('');r.style.cssText='display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--s1);border:1px solid var(--br);border-radius:var(--r);margin-bottom:6px;';
+      r.innerHTML=`<span style="font-size:22px;">${h.ic}</span><div style="flex:1;"><div style="font-size:15px;font-weight:500;">${h.label}</div><div class="sub" style="font-size:11px;">+${h.xp} XP · ${h.cat==='body'?'Körper':h.cat==='mind'?'Geist':'Disziplin'}</div></div>`;
+      const tog=div('tog'+(h.on?' on':''));
+      const tipEl=mk('div','sub','');tipEl.style.cssText='font-size:12px;color:#FF9F0A;margin-top:6px;display:none;';
+      tog.onclick=async()=>{
+        const newVal=!h.on;h.on=newVal;cfg2.habits=cfg2.habits.map(x=>x.id===h.id?h:x);saveCfg(cfg2);tog.classList.toggle('on',newVal);
+        if(!newVal){tipEl.style.display='block';tipEl.textContent='KI bewertet...';
+          try{tipEl.textContent='⚠️ '+(await callAI(`Nutzer deaktiviert "${h.label}" aus seinen Habits. Ziel: ${P?.goalNames||'Fitness'}. Ist das sinnvoll? 1 Satz. Deutsch.`));}
+          catch{tipEl.style.display='none';}
+        }else{tipEl.style.display='none';}
+      };
+      r.appendChild(tog);c.appendChild(r);r.after(tipEl);
+    });
+    c.innerHTML+=`<div class="cap" style="font-size:9px;margin-top:12px;margin-bottom:9px;">EIGENEN HABIT HINZUFÜGEN</div>`;
+    const gr=div('');gr.style.cssText='display:flex;gap:7px;margin-bottom:12px;';
+    const ninp=mk('input','');ninp.placeholder='Habit-Name...';ninp.style.flex='1';
+    const xpinp=mk('input','');xpinp.type='number';xpinp.value='15';xpinp.style.cssText='width:65px;flex:none;';
+    const nadd=btnEl('btn btn-sm tap','+ Hinzufügen',async()=>{
+      const v=ninp.value.trim();if(!v)return;
+      const newH={id:'c_'+Date.now(),cat:'discipline',ic:'⚡',label:v,xp:parseInt(xpinp.value)||15,on:true};
+      cfg2.habits.push(newH);saveCfg(cfg2);ninp.value='';
+      const tipEl2=mk('div','sub','');tipEl2.style.cssText='font-size:12px;color:var(--g);margin-top:6px;';tipEl2.textContent='KI bewertet...';gr.after(tipEl2);
+      try{tipEl2.textContent='💡 '+(await callAI(`Nutzer fügt "${v}" als Habit hinzu. Ziel: ${P?.goalNames||'Fitness'}. Kurze Einschätzung + 1 Tipp. 2 Sätze. Deutsch.`));}
+      catch{tipEl2.remove();}
+    },'background:var(--gdd);border:1px solid var(--brg);color:var(--g);');
+    gr.appendChild(ninp);gr.appendChild(xpinp);gr.appendChild(nadd);c.appendChild(gr);
+    c.appendChild(btnEl('btn btn-sec tap','Fertig',closeOv));
+  });
+}
+
+function openVitalsEditor(){
+  openOv(c=>{
+    c.innerHTML=`<div style="font-size:20px;font-weight:700;margin-bottom:6px;">Ziele & Supplements</div><div class="sub" style="margin-bottom:18px;">Passe deine Zielwerte an – KI gibt Einschätzung.</div>`;
+    const cfg2=getCfg();
+    const SLIDERS=[
+      {k:'proteinGoal',l:'Protein-Ziel',unit:'g/Tag',min:80,max:320,step:5,tip:'Empfohlen: 1.6–2.2g × Körpergewicht'},
+      {k:'waterGoal',l:'Wasserziel',unit:'ml/Tag',min:1500,max:5000,step:100,tip:'Empfohlen: 2500–3500ml'},
+      {k:'gateXP',l:'Gate XP-Schwelle',unit:'XP',min:30,max:150,step:5,tip:'Empfohlen: 60–90 XP'},
+      {k:'sleepGoal',l:'Schlafziel',unit:'Stunden',min:5,max:10,step:.5,tip:'Empfohlen: 7–9h'},
+    ];
+    SLIDERS.forEach(sl=>{
+      const card=div('card');card.style.marginBottom='8px';
+      const head=div('');head.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;';
+      const valEl=mk('div','','');valEl.style.cssText='font-size:20px;font-weight:700;color:var(--g);';valEl.textContent=cfg2[sl.k];
+      head.appendChild(mk('div','',''+`<div style="font-size:14px;font-weight:600;">${sl.l}</div><div class="sub" style="font-size:11px;">${sl.tip}</div>`));head.appendChild(valEl);card.appendChild(head);
+      const range=mk('input','');range.type='range';range.min=sl.min;range.max=sl.max;range.step=sl.step;range.value=cfg2[sl.k];range.style.cssText='width:100%;margin:10px 0 4px;';
+      const tipEl=mk('div','sub','');tipEl.style.cssText='font-size:12px;color:#FF9F0A;display:none;';
+      range.oninput=e=>{cfg2[sl.k]=parseFloat(e.target.value);valEl.textContent=cfg2[sl.k];saveCfg(cfg2);};
+      range.onchange=async()=>{
+        tipEl.style.display='block';tipEl.textContent='Wird bewertet...';
+        try{tipEl.textContent='💡 '+(await callAI(`Nutzer setzt ${sl.l} auf ${cfg2[sl.k]} ${sl.unit}. Ziel: ${P?.goalNames||'Fitness'}. Ist das optimal? 1 Satz. Deutsch.`));}
+        catch{tipEl.style.display='none';}
+      };
+      card.appendChild(range);card.appendChild(tipEl);c.appendChild(card);
+    });
+    c.innerHTML+='<div class="cap" style="font-size:9px;margin-top:12px;margin-bottom:9px;">SUPPLEMENTS VERWALTEN</div>';
+    cfg2.supps.forEach(sup=>{
+      const r=div('');r.style.cssText='display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--s1);border:1px solid var(--br);border-radius:var(--r);margin-bottom:5px;';
+      r.innerHTML=`<span style="font-size:20px;">${sup.ic}</span><div style="flex:1;"><div style="font-size:14px;font-weight:500;">${sup.n}</div><div class="sub" style="font-size:11px;">${sup.d} · ${sup.t}</div></div>`;
+      const tog=div('tog'+(sup.on?' on':''));
+      const tipEl=mk('div','sub','');tipEl.style.cssText='font-size:12px;color:var(--g);margin-top:6px;display:none;';
+      tog.onclick=async()=>{
+        const newVal=!sup.on;sup.on=newVal;cfg2.supps=cfg2.supps.map(x=>x.id===sup.id?sup:x);saveCfg(cfg2);tog.classList.toggle('on',newVal);
+        if(newVal){tipEl.style.display='block';tipEl.textContent='KI bewertet...';
+          try{tipEl.textContent='💡 '+(await callAI(`Nutzer aktiviert "${sup.n}" (${sup.d}). Ziel: ${P?.goalNames||'Fitness'}. Sinnvoll + beste Uhrzeit. 2 Sätze. Deutsch.`));}
+          catch{tipEl.style.display='none';}
+        }else{tipEl.style.display='none';}
+      };
+      r.appendChild(tog);c.appendChild(r);r.after(tipEl);
+    });
+    c.appendChild(btnEl('btn btn-sec tap','Fertig',closeOv,'margin-top:8px;'));
+  });
+}
+
+// ── KI COACH ──────────────────────────────────────
+function openProfileEdit(){
+  openOv(c=>{
+    const bio=P?.bio||{};
+    c.innerHTML=`<div style="font-size:20px;font-weight:700;margin-bottom:6px;">Profil aktualisieren</div><div class="sub" style="margin-bottom:18px;">Je mehr du ausfüllst, desto besser passen sich KI-Empfehlungen an dich an.</div>`;
+
+    // Basic data
+    c.innerHTML+=`<div class="cap" style="font-size:9px;margin-bottom:8px;">KÖRPERDATEN</div>`;
+    const gr=div('');gr.style.cssText='display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;';
+    const fields={age:bio.age||'',kg:bio.kg||'',cm:bio.cm||''};
+    [{k:'age',l:'Alter',ph:'Jahre'},{k:'kg',l:'Gewicht',ph:'kg'},{k:'cm',l:'Größe',ph:'cm'}].forEach(f=>{
+      const cell=div('');cell.innerHTML=`<div class="cap" style="font-size:8px;margin-bottom:4px;">${f.l}</div>`;
+      const inp=mk('input','');inp.type='number';inp.value=fields[f.k];inp.placeholder=f.ph;inp.style.cssText='text-align:center;font-size:18px;font-weight:700;padding:9px 4px;';
+      inp.oninput=e=>fields[f.k]=e.target.value;cell.appendChild(inp);gr.appendChild(cell);
+    });
+    c.appendChild(gr);
+
+    // Selectors
+    const sels=[{k:'trainLvl',l:'TRAININGSERFAHRUNG',cur:bio.trainLvl||'intermediate',opts:[{v:'beginner',l:'Anfänger'},{v:'intermediate',l:'Fortgeschritten'},{v:'advanced',l:'Experte'}]},{k:'stress',l:'STRESSLEVEL',cur:bio.stress||'medium',opts:[{v:'low',l:'Niedrig'},{v:'medium',l:'Mittel'},{v:'high',l:'Hoch'},{v:'extreme',l:'Extrem'}]},{k:'time',l:'VERFÜGBARE ZEIT/TAG',cur:bio.time||'60',opts:[{v:'30',l:'30 Min'},{v:'60',l:'1 Std'},{v:'90',l:'1,5 Std'},{v:'120',l:'2+ Std'}]}];
+    const selVals={trainLvl:bio.trainLvl||'intermediate',stress:bio.stress||'medium',time:bio.time||'60'};
+    sels.forEach(sel=>{
+      const w=div('');w.style.marginBottom='12px';w.innerHTML=`<div class="cap" style="font-size:8px;margin-bottom:7px;">${sel.l}</div>`;
+      const seg2=div('seg');
+      sel.opts.forEach(o=>{const b=mk('button','seg-b'+(selVals[sel.k]===o.v?' on':''),o.l);b.onclick=()=>{selVals[sel.k]=o.v;seg2.querySelectorAll('.seg-b').forEach((x,i)=>x.classList.toggle('on',sel.opts[i].v===o.v));};seg2.appendChild(b);});
+      w.appendChild(seg2);c.appendChild(w);
+    });
+
+    // Goals
+    c.innerHTML+=`<div class="cap" style="font-size:9px;margin-bottom:6px;">ZIELE</div>`;
+    const goalIds=[...(P?.goalIds||[])];
+    const gw=div('');gw.style.cssText='display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;';
+    Object.values(GOALS).forEach(g=>{
+      const sel=goalIds.includes(g.id);
+      const b=mk('button','tag tap',g.ic+' '+g.n);b.style.cssText=`background:${sel?g.c+'15':'var(--s2)'};border:1px solid ${sel?g.c+'40':'var(--br)'};color:${sel?g.c:'var(--tm)'};cursor:pointer;font-size:12px;`;
+      b.onclick=()=>{if(goalIds.includes(g.id)){goalIds.splice(goalIds.indexOf(g.id),1);b.style.background='var(--s2)';b.style.borderColor='var(--br)';b.style.color='var(--tm)';}else{goalIds.push(g.id);b.style.background=g.c+'15';b.style.borderColor=g.c+'40';b.style.color=g.c;}};
+      gw.appendChild(b);
+    });
+    c.appendChild(gw);
+
+    // Save + generate new plan
+    const tip=div('');tip.style.cssText='font-size:12px;color:var(--g);margin-top:8px;display:none;';c.appendChild(tip);
+    const sv=btnEl('btn btn-gold tap','Speichern & Plan neu generieren',async()=>{
+      sv.textContent='Plan wird erstellt...';sv.style.opacity='.6';
+      const newBio={age:fields.age,kg:fields.kg,cm:fields.cm,trainLvl:selVals.trainLvl,sleep:P?.bio?.sleep||'7',stress:selVals.stress,time:selVals.time,focus:P?.bio?.focus||[]};
+      const sG=goalIds.map(id=>GOALS[id]).filter(Boolean);
+      const goalNames=sG.map(g=>g.n).join(' + ')||P?.goalNames||'Eigene Ziele';
+
+      // Auto-adapt config based on bio
+      const cfg2=getCfg();
+      const kg=parseFloat(fields.kg)||80;
+      cfg2.proteinGoal=Math.round(kg*1.8/5)*5; // 1.8g per kg, rounded to 5g
+      if(selVals.time==='30')cfg2.gateXP=40;
+      else if(selVals.time==='60')cfg2.gateXP=60;
+      else if(selVals.time==='90')cfg2.gateXP=80;
+      else cfg2.gateXP=100;
+      saveCfg(cfg2);
+
+      // Generate new plan
+      const prompt=`Erstelle personalisierten Wochen-Masterplan.\nNutzer: ${P?.name}, Ziele: ${goalNames}\nAlter: ${fields.age||'?'} J, ${fields.kg||'?'} kg, ${fields.cm||'?'} cm\nTraining: ${selVals.trainLvl}, Stress: ${selVals.stress}, Zeit: ${selVals.time} Min/Tag\n\n1. WOCHENPROGRAMM Mo–So\n2. TOP 3 PRIORITÄTEN\n3. SUPPLEMENT-EMPFEHLUNG passend zu Biometrie\n4. MORGENROUTINE\n5. SPEZIFISCH: Was jemand mit ${fields.kg||'?'}kg, ${selVals.stress} Stress und ${selVals.time} Min/Tag beachten muss\n\nDeutsch, konkret, kein Intro.`;
+      let plan='';
+      try{plan=await callAI(prompt,null,1000);}catch{plan=P?.plan||'';}
+
+      P={...P,bio:newBio,goalIds,goalNames,plan};
+      ls('los_profile',P);
+      tip.textContent='✓ Gespeichert. Protein-Ziel: '+cfg2.proteinGoal+'g, Gate: '+cfg2.gateXP+' XP';tip.style.display='block';
+      sv.textContent='✓ Gespeichert';sv.style.opacity='1';
+      updateSB();
+      setTimeout(()=>{closeOv();refresh('home');},1500);
+    },'margin-top:4px;');
+    c.appendChild(sv);
+    c.appendChild(tip);
+  });
+}
+
+function openCoach(){
+  openOv(c=>{
+    const bio=P?.bio||{};
+    const pc=pColor();
+    c.innerHTML=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;"><div style="width:44px;height:44px;border-radius:12px;background:var(--gdd);border:1px solid var(--brg);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🤖</div><div><div style="font-size:18px;font-weight:700;">KI-Coach</div><div class="sub" style="font-size:12px;">Personalisiert für ${P?.name}</div></div></div>`;
+
+    // Profile summary card
+    const hasBio=bio.age||bio.kg;
+    const ctxCard=div('');ctxCard.style.cssText=`padding:12px 14px;background:${pc}08;border:1px solid ${pc}18;border-radius:12px;margin-bottom:14px;font-size:13px;color:var(--tm);line-height:1.7;`;
+    ctxCard.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div class="cap" style="font-size:8px;color:${pc};margin-bottom:5px;">DEIN PROFIL</div><strong style="color:var(--t);">${P?.name}</strong> · ${P?.goalNames||'Eigene Ziele'}<br/>${bio.age?`${bio.age} J · `:''}${bio.kg?`${bio.kg} kg · `:''}${bio.cm?`${bio.cm} cm · `:''}${bio.trainLvl?bio.trainLvl:'?'}<br/>Stress: ${bio.stress||'?'} · Zeit: ${bio.time||'?'} Min/Tag${bio.focus?.length?'<br/>Fokus: '+bio.focus.slice(0,3).join(', '):''}${bio.focus?.length>3?'...':''}</div><button onclick="openProfileEdit()" style="background:var(--s3);border:1px solid var(--br);border-radius:8px;padding:5px 10px;color:var(--tm);font-size:11px;cursor:pointer;flex-shrink:0;margin-left:8px;">Edit</button></div>`;
+    if(!hasBio)ctxCard.innerHTML+=`<div style="margin-top:8px;padding:8px 10px;background:rgba(255,159,10,.1);border:1px solid rgba(255,159,10,.2);border-radius:8px;font-size:12px;color:#FF9F0A;">⚠️ Körperdaten fehlen – tippe auf Edit für genauere Antworten</div>`;
+    c.appendChild(ctxCard);
+
+    // Plan preview if exists
+    if(P?.plan){
+      const planToggle=mk('button','cap tap','▸ DEIN MASTERPLAN ANZEIGEN');planToggle.style.cssText='font-size:9px;background:none;border:none;cursor:pointer;color:var(--gd);margin-bottom:8px;padding:0;text-align:left;';
+      const planBox=div('');planBox.style.cssText='padding:12px 14px;background:var(--s2);border:1px solid var(--brg);border-radius:12px;font-size:12px;color:var(--tm);line-height:1.8;white-space:pre-wrap;display:none;margin-bottom:10px;max-height:200px;overflow-y:auto;';
+      planBox.innerHTML=P.plan.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--t)">$1</strong>').replace(/\n/g,'<br/>');
+      let planOpen=false;planToggle.onclick=()=>{planOpen=!planOpen;planBox.style.display=planOpen?'block':'none';planToggle.textContent=(planOpen?'▾ ':'▸ ')+'DEIN MASTERPLAN '+(planOpen?'AUSBLENDEN':'ANZEIGEN');};
+      c.appendChild(planToggle);c.appendChild(planBox);
+    }
+
+    // Quick questions – personalized based on goals
+    const qq=[
+      {ic:'📅',t:'Was ist mein optimaler Trainingsplan diese Woche?'},
+      {ic:'🍽',t:'Was soll ich heute essen für mein Ziel?'},
+      {ic:'💊',t:'Welche Supplements brauche ich wirklich?'},
+      {ic:'😴',t:'Wie optimiere ich meinen Schlaf?'},
+      {ic:'📈',t:'Was ist meine größte Schwachstelle aktuell?'},
+      {ic:'⚡',t:'Was bringt mir den größten Fortschritt?'},
+      {ic:'🧠',t:'Wie reduziere ich meinen Stress?'},
+      {ic:'💪',t:'Wie trainiere ich heute am besten?'},
+    ];
+    // Add goal-specific questions
+    if(P?.goalIds?.includes('biohacker'))qq.unshift({ic:'🧬',t:'Wie optimiere ich meine HRV und Recovery?'});
+    if(P?.goalIds?.includes('entrepreneur'))qq.unshift({ic:'🧠',t:'Wie maximiere ich meine mentale Leistung heute?'});
+    if(P?.goalIds?.includes('longevity'))qq.unshift({ic:'🌿',t:'Was tue ich heute für meine Langlebigkeit?'});
+
+    const qlbl=mk('div','cap','SCHNELLFRAGEN');qlbl.style.cssText='font-size:9px;margin-bottom:8px;';c.appendChild(qlbl);
+    const qgrid=div('');qgrid.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;';
+    qq.slice(0,6).forEach(q=>{
+      const b=mk('button','tap','');b.style.cssText='padding:10px 11px;background:var(--s2);border:1px solid var(--br);border-radius:10px;font-size:12px;color:var(--tm);text-align:left;cursor:pointer;line-height:1.4;font-family:inherit;width:100%;';
+      b.innerHTML=`<span style="font-size:16px;display:block;margin-bottom:4px;">${q.ic}</span>${q.t}`;
+      b.onclick=()=>coachSend(q.t,chat,getCoachCtx());qgrid.appendChild(b);
+    });
+    c.appendChild(qgrid);
+
+    // Chat
+    const chat=div('');chat.style.cssText='display:flex;flex-direction:column;gap:10px;margin-bottom:12px;';c.appendChild(chat);
+
+    // Input
+    const inpRow=div('');inpRow.style.cssText='display:flex;gap:8px;border-top:1px solid var(--br);padding-top:12px;';
+    const inp=mk('textarea','');inp.rows=2;inp.placeholder='Frag deinen KI-Coach...';inp.style.flex='1';inp.oninput=function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px';};
+    const send=div('btn-icon tap','→');send.style.cssText=`background:linear-gradient(135deg,var(--gd),var(--g));color:#040404;font-size:20px;font-weight:700;align-self:flex-end;display:flex;align-items:center;justify-content:center;cursor:pointer;`;
+    send.onclick=()=>{const v=inp.value.trim();if(v){inp.value='';coachSend(v,chat,getCoachCtx());}};
+    inp.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send.onclick();}};
+    inpRow.appendChild(inp);inpRow.appendChild(send);c.appendChild(inpRow);
+  });
+}
+function getCoachCtx(){
+  const bio=P?.bio||{};const t=totals();const c=getCfg();const sh=sleepH();
+  const activHabits=DAY.habits.map(id=>c.habits.find(h=>h.id===id)?.label).filter(Boolean).join(', ')||'keine';
+  const activSupps=Object.keys(DAY.supps).map(id=>c.supps.find(s=>s.id===id)?.n).filter(Boolean).join(', ')||'keine';
+  return`PROFIL: ${P?.name}, Ziele: ${P?.goalNames||'?'}, Alter: ${bio.age||'?'} J, Gewicht: ${bio.kg||'?'} kg, Größe: ${bio.cm||'?'} cm, Trainingslevel: ${bio.trainLvl||'?'}, Durchschlaf: ${bio.sleep||'?'}h, Stress: ${bio.stress||'?'}, Zeit/Tag: ${bio.time||'?'} Min, Fokus: ${bio.focus?.join(', ')||'–'}.
+HEUTE: ${new Date().toLocaleDateString('de-DE',{weekday:'long'})} ${new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}. XP: ${DAY.xp}/${c.gateXP}. Energie: ${DAY.energy||'?'}/5. Schlaf heute: ${sh||'?'}h Q${DAY.sleep?.q||'?'}/5. Protein: ${t.p}g/${c.proteinGoal}g. Wasser: ${(DAY.water/1000).toFixed(1)}L. Habits erledigt: ${activHabits}. Supplements genommen: ${activSupps}. Recovery: ${DAY.recovery.join(', ')||'keine'}.
+MASTERPLAN: ${P?.plan?.slice(0,300)||'–'}`;
+}
+
+async function coachSend(text,chatEl,ctx){
+  const um=div('');um.style.cssText='align-self:flex-end;max-width:85%;padding:11px 14px;background:linear-gradient(135deg,var(--gd),var(--g));border-radius:16px 16px 5px 16px;font-size:14px;color:#040404;line-height:1.5;font-weight:500;';um.textContent=text;chatEl.appendChild(um);
+  const lm=div('');lm.style.cssText='display:flex;gap:9px;';
+  const icon=div('','<div style="width:32px;height:32px;border-radius:10px;background:var(--gdd);border:1px solid var(--brg);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">🤖</div>');
+  const lb=div('');lb.style.cssText='max-width:85%;padding:11px 14px;background:var(--s2);border:1px solid var(--brg);border-radius:16px 16px 16px 5px;font-size:14px;color:var(--tm);line-height:1.75;';lb.innerHTML='<span style="opacity:.4">...</span>';
+  lm.appendChild(icon);lm.appendChild(lb);chatEl.appendChild(lm);
+  chatEl.scrollTop=chatEl.scrollHeight;
+  try{
+    const res=await callAI(`${ctx}\n\nFrage: ${text}`,
+      `Du bist ein persönlicher Gesundheits- und Optimierungs-Coach. Du kennst das komplette Profil des Nutzers und gibst konkrete, personalisierte Empfehlungen. Du bist direkt, motivierend und präzise. Beziehe dich auf die Biometrie und Ziele. Keine allgemeinen Tipps – immer spezifisch für diesen Nutzer. Deutsch.`,
+      700);
+    lb.innerHTML=res.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--t)">$1</strong>').replace(/\n/g,'<br/>');
+  }catch{lb.textContent='Verbindungsfehler.';}
+  chatEl.scrollTop=chatEl.scrollHeight;
+}
+
+
+function openSettings(){
+  openOv(c=>{
+    c.innerHTML=`<div style="font-size:22px;font-weight:700;margin-bottom:18px;">Einstellungen</div>`;
+    if(P){
+      const pc2=pColor();
+      const pcard=div('card-hi');pcard.style.marginBottom='10px';
+      pcard.innerHTML=`<div style="display:flex;gap:14px;align-items:center;margin-bottom:12px;"><span style="font-size:30px;">${P.avatar||'⚡'}</span><div><div style="font-size:18px;font-weight:700;color:${pc2};">${P.name}</div><div class="sub" style="margin-top:2px;">${P.titleTxt||''}${isPro?' · <span style="color:var(--g);">PRO</span>':''}</div></div></div>${P.quote?`<div style="font-size:14px;color:var(--tm);font-style:italic;line-height:1.65;">"${P.quote}"</div>`:''}`;
+      c.appendChild(pcard);
+      // Bio summary
+      if(P.bio){
+        const bio=P.bio;const bioCard=div('card');bioCard.style.marginBottom='10px';
+        bioCard.innerHTML=`<div class="cap" style="font-size:9px;margin-bottom:10px;">DEINE BIOMETRIE</div>`;
+        const bg=div('');bg.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;';
+        [{l:'ALTER',v:bio.age?bio.age+' J':'–'},{l:'GEWICHT',v:bio.kg?bio.kg+' kg':'–'},{l:'GRÖSSE',v:bio.cm?bio.cm+' cm':'–'}].forEach(({l,v})=>{const b=div('');b.style.cssText='text-align:center;padding:10px 6px;background:var(--s2);border-radius:9px;';b.innerHTML=`<div style="font-size:16px;font-weight:700;color:var(--g);">${v}</div><div class="cap" style="font-size:8px;margin-top:2px;">${l}</div>`;bg.appendChild(b);});
+        bioCard.appendChild(bg);
+        const tags=div('');tags.style.cssText='display:flex;flex-wrap:wrap;gap:6px;';
+        [{l:bio.trainLvl==='beginner'?'Anfänger':bio.trainLvl==='intermediate'?'Fortgeschritten':'Experte',ic:'🏋'},{l:bio.sleep+'h Schlaf',ic:'😴'},{l:'Stress: '+bio.stress,ic:'🧠'},{l:bio.time+' Min/Tag',ic:'⏱'}].forEach(({l,ic})=>{const t=mk('div','tag',ic+' '+l);t.style.cssText='background:var(--s2);border:1px solid var(--br);color:var(--tm);font-size:12px;';tags.appendChild(t);});
+        if(bio.focus?.length){const ft=mk('div','tag','🎯 '+bio.focus.slice(0,3).join(', '));ft.style.cssText='background:var(--s2);border:1px solid var(--br);color:var(--tm);font-size:12px;';tags.appendChild(ft);}
+        bioCard.appendChild(tags);c.appendChild(bioCard);
+      }
+    }
+    // Coach
+    const cb=btnEl('btn tap','🤖  KI-Coach öffnen',openCoach,'margin-bottom:8px;background:var(--gdd);border:1px solid var(--brg);color:var(--g);font-weight:700;');c.appendChild(cb);
+    if(P?.plan){const btn2=btnEl('btn btn-sec btn-sm tap','◈ Masterplan anzeigen',()=>{openOv(c2=>{c2.innerHTML=`<div style="font-size:18px;font-weight:700;margin-bottom:14px;">Dein Masterplan</div><div class="card" style="font-size:13px;color:var(--tm);line-height:1.85;white-space:pre-wrap;">${P.plan}</div>`;c2.appendChild(btnEl('btn btn-sec tap','Schließen',closeOv,'margin-top:10px;'));});});btn2.style.marginBottom='10px';c.appendChild(btn2);}
+    if(!isPro){const ub=btnEl('btn btn-gold tap','Upgrade zu PRO · 9,99€/Mo →',()=>{isPro=true;ls('los_pro',true);$('sb_pro').style.display='inline-flex';closeOv();});ub.style.marginBottom='6px';c.appendChild(ub);c.appendChild(mk('div','sub','KI-Coach · Alle Features · Jederzeit kündbar'));}
+    c.appendChild(mk('div','',`<div style="height:1px;background:var(--br);margin:14px 0;"></div>`));
+    c.appendChild(btnEl('btn btn-danger tap','Profil zurücksetzen & neu starten',()=>{if(confirm('Alle Daten löschen?')){['los_profile','los_xp','los_pro','los_cfg','los_day'].forEach(k=>localStorage.removeItem(k));location.reload();}}));
+  });
+}
+
+// ── GATE TIMER ─────────────────────────────────────
+function openGateTimer(mins){
+  let secs=(mins||10)*60,timer=null;
+  openOv(c=>{
+    c.innerHTML=`<div class="cap" style="color:#30D158;font-size:9px;margin-bottom:20px;">SOCIAL MEDIA TIMER</div>`;
+    const disp=div('');disp.style.cssText='font-size:80px;font-weight:700;color:#30D158;line-height:1;margin-bottom:8px;letter-spacing:-3px;font-variant-numeric:tabular-nums;text-align:center;';
+    const sub=mk('div','sub','Entspann dich – du hast es verdient.');sub.style.cssText='font-size:14px;text-align:center;margin-bottom:28px;';
+    const fmt=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+    disp.textContent=fmt(secs);c.appendChild(disp);c.appendChild(sub);
+    timer=setInterval(()=>{secs--;disp.textContent=fmt(secs);disp.style.color=secs<30?'#FF453A':'#30D158';if(secs<=0){clearInterval(timer);sub.textContent='Zeit ist um.';sub.style.color='#FF453A';}},1000);
+    c.appendChild(btnEl('btn btn-sec tap','Beenden',()=>{clearInterval(timer);closeOv();}));
+  });
+}
+
+// ── ONBOARDING ─────────────────────────────────────
+let OB={name:'',title:'',quote:'',goalIds:[],cGoal:'',age:'',kg:'',cm:'',trainLvl:'intermediate',sleep:'7',stress:'medium',time:'60',focus:[]};
+
+function obGo(n){
+  document.querySelectorAll('.ob-p').forEach(x=>x.classList.remove('on'));
+  $('ob'+n).classList.add('on');
+  [1,2,3].forEach(i=>{const d=$('ob_d'+i);if(!d)return;d.innerHTML='';for(let j=1;j<=3;j++){const dot=document.createElement('div');dot.style.cssText=`width:${j<n?'22px':j===n?'22px':'8px'};height:8px;border-radius:99px;background:${j<=n?'var(--g)':'var(--s3)'};transition:all .3s;`;d.appendChild(dot);}});
+}
+function obS1(){const n=$('ob_name').value.trim();if(!n)return;OB.name=n;OB.title=$('ob_title').value.trim();OB.quote=$('ob_quote').value.trim();obGo(2);buildGCards();}
+function buildGCards(){
+  const cont=$('ob_goals');cont.innerHTML='';
+  Object.values(GOALS).forEach(g=>{
+    const sel=OB.goalIds.includes(g.id);
+    const c=document.createElement('div');c.style.cssText=`display:flex;align-items:center;gap:13px;padding:13px 15px;background:${sel?g.c+'08':'var(--s1)'};border:1px solid ${sel?g.c+'45':'var(--br)'};border-radius:var(--r);cursor:pointer;transition:all .18s;`;
+    c.innerHTML=`<span style="font-size:26px;flex-shrink:0;">${g.ic}</span><div style="flex:1;"><div style="font-size:15px;font-weight:600;color:${sel?g.c:'var(--t)'};">${g.n}</div><div class="sub" style="font-size:12px;margin-top:2px;">${g.d}</div></div>`;
+    const chk=document.createElement('div');chk.style.cssText=`width:24px;height:24px;border-radius:8px;border:2px solid ${sel?g.c:'var(--br)'};background:${sel?g.c:'transparent'};display:flex;align-items:center;justify-content:center;font-size:13px;color:#040404;font-weight:700;transition:all .18s;flex-shrink:0;`;chk.textContent=sel?'✓':'';c.appendChild(chk);
+    c.onclick=()=>{
+      if(OB.goalIds.includes(g.id)){OB.goalIds=OB.goalIds.filter(x=>x!==g.id);c.style.background='var(--s1)';c.style.borderColor='var(--br)';c.querySelector('div div').style.color='var(--t)';chk.style.background='transparent';chk.style.borderColor='var(--br)';chk.textContent='';}
+      else{OB.goalIds.push(g.id);c.style.background=g.c+'08';c.style.borderColor=g.c+'45';c.querySelector('div div').style.color=g.c;chk.style.background=g.c;chk.style.borderColor=g.c;chk.textContent='✓';}
+      $('ob_cwrap').style.display=OB.goalIds.includes('custom')?'block':'none';
+      $('ob_gcnt').textContent=OB.goalIds.length?OB.goalIds.length+' ausgewählt':'';
+    };cont.appendChild(c);
+  });
+}
+function obS2(){if(!OB.goalIds.length)return;OB.cGoal=$('ob_custom')?.value?.trim()||'';obGo(3);buildQSels();buildFPills();}
+function buildQSels(){
+  const cont=$('ob_qsels');cont.innerHTML='';
+  [{k:'trainLvl',l:'TRAININGSERFAHRUNG',opts:[{v:'beginner',l:'Anfänger'},{v:'intermediate',l:'Fortgeschritten'},{v:'advanced',l:'Experte'}]},{k:'sleep',l:'DURCHSCHNITTLICHER SCHLAF',opts:[{v:'5',l:'<6h'},{v:'6',l:'6–7h'},{v:'7',l:'7–8h'},{v:'9',l:'8+h'}]},{k:'stress',l:'STRESSLEVEL',opts:[{v:'low',l:'Niedrig'},{v:'medium',l:'Mittel'},{v:'high',l:'Hoch'},{v:'extreme',l:'Extrem'}]},{k:'time',l:'VERFÜGBARE ZEIT PRO TAG',opts:[{v:'30',l:'30 Min'},{v:'60',l:'1 Std'},{v:'90',l:'1,5 Std'},{v:'120',l:'2+ Std'}]}].forEach(sel=>{
+    const w=document.createElement('div');w.innerHTML=`<div class="cap" style="font-size:9px;margin-bottom:7px;">${sel.l}</div>`;
+    const seg2=document.createElement('div');seg2.className='seg';
+    sel.opts.forEach(o=>{const b=mk('button','seg-b'+(OB[sel.k]===o.v?' on':''),o.l);b.onclick=()=>{OB[sel.k]=o.v;seg2.querySelectorAll('.seg-b').forEach((x,i)=>{x.classList.toggle('on',sel.opts[i].v===o.v);});};seg2.appendChild(b);});
+    w.appendChild(seg2);cont.appendChild(w);
+  });
+}
+function buildFPills(){
+  const cont=$('ob_fp');cont.innerHTML='';
+  ['Luzides Träumen','Kortisol ↓','Height Maxxing','VO2max','Immunsystem','Reaktionszeit','Mobilität','Longevity','Body Fix','Mental Performance'].forEach(f=>{
+    const b=mk('button','tag tap',f);b.style.cssText='background:var(--s2);border:1px solid var(--br);color:var(--tm);cursor:pointer;font-size:12px;';
+    b.onclick=()=>{if(OB.focus.includes(f)){OB.focus=OB.focus.filter(x=>x!==f);b.style.background='var(--s2)';b.style.borderColor='var(--br)';b.style.color='var(--tm)';}else{OB.focus.push(f);b.style.background='rgba(201,168,76,.15)';b.style.borderColor='rgba(201,168,76,.35)';b.style.color='var(--g)';}};
+    cont.appendChild(b);
+  });
+}
+async function obFinish(){
+  OB.age=$('ob_age').value;OB.kg=$('ob_kg').value;OB.cm=$('ob_cm').value;
+  const sG=OB.goalIds.map(id=>GOALS[id]).filter(Boolean);
+  const mainG=sG[0]||GOALS.custom;
+  const goalNames=sG.map(g=>g.n).join(' + ')||'Eigene Ziele';
+  const fb=$('ob_fin');
+  fb.textContent='KI analysiert dein Profil...';fb.style.opacity='.6';
+
+  const goalStr=OB.goalIds.includes('custom')&&OB.cGoal?OB.cGoal+' + '+goalNames:goalNames;
+  const bioCtx=`Nutzer: ${OB.name}, Ziele: ${goalStr}, Alter: ${OB.age||'?'} J, Gewicht: ${OB.kg||'?'} kg, Größe: ${OB.cm||'?'} cm, Training: ${OB.trainLvl}, Schlaf: ${OB.sleep}h/Nacht, Stress: ${OB.stress}, Zeit: ${OB.time} Min/Tag, Extra-Fokus: ${OB.focus.join(', ')||'–'}`;
+
+  // 1. Generate personal plan
+  fb.textContent='Wochenplan wird erstellt...';
+  let plan='';
+  try{plan=await callAI(
+    `${bioCtx}\n\nErstelle personalisierten Wochen-Masterplan:\n1. WOCHENPROGRAMM Mo–So\n2. TOP 3 PRIORITÄTEN (sofort)\n3. SUPPLEMENT-EMPFEHLUNG\n4. MORGENROUTINE (${OB.time} Min)\n${sG.length>1?'5. KOMBINATIONS-STRATEGIE':'5. WICHTIGSTE WARNUNG'}\n\nDeutsch, konkret, kein Intro.`,
+    null,1000);
+  }catch{plan='Plan wird beim nächsten Start generiert.';}
+
+  // 2. AI customizes the config based on user data
+  fb.textContent='App wird auf dich angepasst...';
+  const cfg2=getCfg();
+
+  // Protein goal based on weight
+  if(OB.kg){
+    const kg=parseInt(OB.kg);
+    if(OB.trainLvl==='advanced')cfg2.proteinGoal=Math.round(kg*2.2);
+    else if(OB.trainLvl==='intermediate')cfg2.proteinGoal=Math.round(kg*1.8);
+    else cfg2.proteinGoal=Math.round(kg*1.6);
+  }
+
+  // Sleep goal
+  if(OB.sleep==='5')cfg2.sleepGoal=7; // they sleep badly, set aspirational goal
+  else if(OB.sleep==='9')cfg2.sleepGoal=8;
+  else cfg2.sleepGoal=8;
+
+  // Gate XP based on time available
+  if(OB.time==='30')cfg2.gateXP=40;
+  else if(OB.time==='60')cfg2.gateXP=60;
+  else if(OB.time==='90')cfg2.gateXP=75;
+  else cfg2.gateXP=90;
+
+  // Enable/disable habits based on goals & time
+  cfg2.habits=cfg2.habits.map(h=>{
+    // If very little time, disable some habits
+    if(OB.time==='30'&&['walk','meditate','journal'].includes(h.id))return{...h,on:false};
+    // Enable meditation for high stress
+    if(h.id==='meditate'&&['high','extreme'].includes(OB.stress))return{...h,on:true};
+    // Enable nosnooze for everyone who sleeps too much or too little
+    if(h.id==='nosnooze')return{...h,on:true};
+    return h;
+  });
+
+  // Enable supplements based on goals
+  cfg2.supps=cfg2.supps.map(s=>{
+    if(s.id==='ash'&&['high','extreme'].includes(OB.stress))return{...s,on:true};
+    if(s.id==='mag'&&(OB.sleep==='5'||OB.sleep==='6'))return{...s,on:true};
+    return s;
+  });
+
+  saveCfg(cfg2);
+
+  // 3. Save full profile with all bio data
+  const profile={
+    name:OB.name,
+    titleTxt:OB.title||(sG.length>1?goalNames:mainG.n),
+    quote:OB.quote||(sG[0]?.d||'Deine Regeln.'),
+    avatar:sG.slice(0,2).map(g=>g.ic).join('')||'⚡',
+    color:sG.length===1?mainG.c:'#C9A84C',
+    goalId:mainG.id,goalIds:OB.goalIds,goalNames,plan,
+    bio:{age:OB.age,kg:OB.kg,cm:OB.cm,trainLvl:OB.trainLvl,sleep:OB.sleep,stress:OB.stress,time:OB.time,focus:OB.focus},
+  };
+  ls('los_profile',profile);ls('los_xp',0);
+  P=profile;totalXP=0;isPro=false;DAY=loadDay();
+  $('ob').style.display='none';
+  updateSB();
+  // Show coach screen first
+  showCoachWelcome();
+}
+
+function showCoachWelcome(){
+  openOv(c=>{
+    const pc=pColor();
+    c.innerHTML=`
+      <div style="text-align:center;padding:8px 0 16px;">
+        <div style="font-size:48px;margin-bottom:12px;">${P.avatar}</div>
+        <div style="font-size:22px;font-weight:700;margin-bottom:6px;">Willkommen, ${P.name}</div>
+        <div style="font-size:14px;color:var(--tm);line-height:1.7;margin-bottom:20px;">Die App wurde auf dein Profil angepasst.<br/>Hier ist eine Zusammenfassung:</div>
+      </div>`;
+    const cfg2=getCfg();
+    // Show what was customized
+    const changes=[
+      {ic:'🥩',l:'Protein-Ziel',v:cfg2.proteinGoal+'g/Tag'},
+      {ic:'💧',l:'Wasser-Ziel',v:(cfg2.waterGoal/1000).toFixed(1)+'L/Tag'},
+      {ic:'🔒',l:'Gate XP',v:cfg2.gateXP+' XP für Social Media'},
+      {ic:'😴',l:'Schlaf-Ziel',v:cfg2.sleepGoal+'h/Nacht'},
+      {ic:'⚔',l:'Aktive Habits',v:cfg2.habits.filter(h=>h.on).length+' von '+cfg2.habits.length},
+      {ic:'💊',l:'Aktive Supplements',v:cfg2.supps.filter(s=>s.on).length+' von '+cfg2.supps.length},
+    ];
+    const grid=document.createElement('div');grid.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;';
+    changes.forEach(ch=>{
+      const b=document.createElement('div');b.style.cssText=`padding:12px;background:var(--s2);border:1px solid ${pc}20;border-radius:12px;`;
+      b.innerHTML=`<div style="font-size:20px;margin-bottom:5px;">${ch.ic}</div><div style="font-size:11px;color:var(--tm);margin-bottom:2px;">${ch.l}</div><div style="font-size:14px;font-weight:700;color:${pc};">${ch.v}</div>`;
+      grid.appendChild(b);
+    });
+    c.appendChild(grid);
+    // Show plan preview
+    if(P.plan){
+      const planCard=document.createElement('div');planCard.style.cssText='padding:14px;background:var(--s1);border:1px solid var(--brg);border-radius:14px;margin-bottom:14px;position:relative;overflow:hidden;';
+      planCard.innerHTML=`<div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gd),transparent)"></div><div class="cap" style="font-size:9px;margin-bottom:8px;">DEIN MASTERPLAN</div><div style="font-size:13px;color:var(--tm);line-height:1.8;max-height:150px;overflow:hidden;">${P.plan.replace(/\n/g,'<br/>')}</div><div style="position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(transparent,var(--s1));"></div>`;
+      c.appendChild(planCard);
+    }
+    const startBtn=btnEl('btn btn-gold tap','Los geht\'s →',()=>{closeOv();RENDER.home($('s_home'));});
+    c.appendChild(startBtn);
+  });
+}
+
+
+// ── INIT ───────────────────────────────────────────
+initState();
+if(P){$('ob').style.display='none';updateSB();RENDER.home($('s_home'));}
+
+// PWA
+if('serviceWorker'in navigator){const sw=`const C='los-v5';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.add(location.href)));self.skipWaiting();});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match(e.request))));});`;navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))).catch(()=>{});}
+</script>
+</body>
+</html>
